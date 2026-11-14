@@ -315,7 +315,45 @@ const QUESTIONS = [
   {q:"Kokio prieskonio dedama į tradicinius kalėdinius meduolius?", a:["Imbiero","Kario","Raudonųjų pipirų","Krapų"], e:"Meduoliams būdingas imbieras, cinamonas, gvazdikėliai."},
   {q:"Kaip vadinamas laikotarpis prieš Kalėdas?", a:["Adventas","Gavėnia","Užgavėnės","Sekminės"], e:"Adventas trunka 4 sekmadienius – advento vainike uždegamos 4 žvakės."},
   {q:"💻 Kodėl programuotojai painioja Helovyną su Kalėdomis?", a:["Nes OCT 31 = DEC 25","Nes abi šventės rudenį","Nes abiejose dalijami saldainiai","Nes 31 ir 25 – pirminiai skaičiai"], e:"31 aštuntainėje (OCT) = 3·8 + 1 = 25 dešimtainėje (DEC)!"},
-  {q:"💻 Kiek bitų reikia skaičiui 25 užrašyti dvejetaine sistema?", a:["5","4","8","25"], e:"25 = 11001₂ – penki bitai. Su 4 bitais telpa tik iki 15."}
+  {q:"💻 Kiek bitų reikia skaičiui 25 užrašyti dvejetaine sistema?", a:["5","4","8","25"], e:"25 = 11001₂ – penki bitai. Su 4 bitais telpa tik iki 15."},
+  /* ---- Lietuviškos tradicijos ---- */
+  {q:"Kokios spalvos yra Advento laikotarpio liturginė spalva bažnyčioje?", a:["Violetinė","Žalia","Raudona","Geltona"], e:"Advento spalva – violetinė, ji reiškia laukimą ir susikaupimą."},
+  {q:"Kiek žvakių būna advento vainike?", a:["4","3","7","12"], e:"Keturios žvakės – po vieną kiekvienam advento sekmadieniui."},
+  {q:"Kaip vadinami persirengėliai, kurie per Kalėdas ir Tris Karalius vaikščiodavo po namus?", a:["Kalėdotojai","Užgavėnininkai","Sekminiautojai","Joninininkai"], e:"Kalėdotojai lankydavo kaimynus, dainuodavo, linkėdavo gero derliaus ir būdavo vaišinami."},
+  {q:"Ką, pasak Kūčių būrimų, reiškia iš po staltiesės ištrauktas ilgas šiaudas?", a:["Ilgą gyvenimą","Didelį turtą","Greitas vestuves","Šaltą žiemą"], e:"Ilgas šiaudas – ilgas gyvenimas, trumpas – trumpesnis. Tai senas žaidimas-būrimas."},
+  {q:"Koks kisielius tradiciškai geriamas per Kūčias?", a:["Spanguolių","Bananų","Šokolado","Pieno"], e:"Spanguolių kisielius – vienas iš tradicinių Kūčių stalo patiekalų."},
+  {q:"Kam, pagal tradiciją, ant Kūčių stalo paliekama lėkštė ar vieta?", a:["Mirusiems šeimos nariams","Kalėdų Seneliui","Kaimynams","Naminiams gyvūnams"], e:"Tikėta, kad Kūčių vakarą prie stalo sugrįžta mirusių artimųjų vėlės."},
+  /* ---- Kalėdos pasaulyje ---- */
+  {q:"Kokia kalba palinkėta „Feliz Navidad“?", a:["Ispanų","Italų","Portugalų","Prancūzų"], e:"„Feliz Navidad“ ispaniškai reiškia „Linksmų Kalėdų“."},
+  {q:"Kaip prancūziškai vadinamas Kalėdų Senelis?", a:["Père Noël","Babbo Natale","Weihnachtsmann","Joulupukki"], e:"Père Noël – prancūziškai, Babbo Natale – itališkai, Weihnachtsmann – vokiškai, Joulupukki – suomiškai."},
+  {q:"Kaip vadinama gera ragana, kuri Italijoje sausio 6 d. atneša vaikams dovanų?", a:["Befana","Baba Jaga","Ragana Ranka","Morana"], e:"Befana skrenda ant šluotos Trijų Karalių išvakarėse ir neša saldainių geriems vaikams."},
+  {q:"Kurioje šalyje per Kalėdas tapo populiaru valgyti greito maisto vištieną (KFC)?", a:["Japonijoje","Kanadoje","Indijoje","Brazilijoje"], e:"Japonijoje KFC vištiena per Kalėdas – populiari tradicija nuo 8-ojo dešimtmečio."},
+  {q:"Kurioje šalyje Kalėdos būna vasarą ir dažnai švenčiamos paplūdimyje?", a:["Australijoje","Norvegijoje","Kanadoje","Japonijoje"], e:"Pietiniame pusrutulyje gruodis – vasaros mėnuo."},
+  {q:"Kuri šalis kasmet padovanoja Londonui kalėdinę eglę Trafalgaro aikštei?", a:["Norvegija","Švedija","Suomija","Kanada"], e:"Nuo 1947 m. Oslas kasmet dovanoja eglę kaip padėką už pagalbą per Antrąjį pasaulinį karą."},
+  {q:"Kaip vadinamas tradicinis vokiškas kalėdinis pyragas su džiovintais vaisiais?", a:["Štolenas (Stollen)","Tiramisu","Baumkuchenas","Strudelis"], e:"Štolenas – kepinys su razinomis, cukatais, apibarstytas cukraus pudra."},
+  {q:"Kurioje šalyje sukurta daina „Jingle Bells“?", a:["JAV","Anglijoje","Vokietijoje","Airijoje"], e:"Dainą XIX a. viduryje sukūrė amerikietis Jamesas Lordas Pierpontas."},
+  {q:"Po kokiu augalu, pagal anglų tradiciją, per Kalėdas bučiuojamasi?", a:["Po amalu","Po bijūnu","Po ąžuolu","Po kadagiu"], e:"Amalo šakelė kabinama virš durų – po ja susitikę žmonės pasibučiuoja."},
+  {q:"Kiek elnių (be Rudolfo) traukia Kalėdų Senelio roges pagal garsią istoriją?", a:["8","6","10","12"], e:"Aštuoni elniai, tarp jų Kometa, Šokėjas, Žaibas... Rudolfas – devintasis."},
+  {q:"Kaip vadinami Kalėdų Senelio pagalbininkai, gaminantys dovanas?", a:["Elfai","Nykštukai-kalviai","Troliai","Fėjos"], e:"Pagal legendą elfai dirba Kalėdų Senelio dirbtuvėse."},
+  {q:"Kuriuo laiku tradiciškai prasideda katalikų Bernelių Mišios?", a:["Vidurnaktį","Saulei tekant","Vidurdienį","Saulei leidžiantis"], e:"Bernelių Mišios aukojamos Kūčių naktį, vidurnaktį (dabar dažnai ir anksčiau vakare)."},
+  /* ---- Žiema ir gamta ---- */
+  {q:"Kiek spindulių (kampų) turi snaigė?", a:["6","5","8","4"], e:"Vandens molekulės kristalizuojasi šešiakampe forma, todėl snaigės turi 6 spindulius."},
+  {q:"Kada šiauriniame pusrutulyje būna trumpiausia metų diena?", a:["Apie gruodžio 21–22 d.","Sausio 1 d.","Gruodžio 25 d.","Vasario 2 d."], e:"Tai žiemos saulėgrįža – po jos dienos ima ilgėti."},
+  {q:"Kokioje temperatūroje užšąla gėlas vanduo?", a:["0 °C","−10 °C","4 °C","−1 °C"], e:"Gėlas vanduo užšąla 0 °C temperatūroje. Sūrus jūros vanduo – žemesnėje."},
+  {q:"Kodėl eglė vadinama visžaliu medžiu?", a:["Ji nenumeta spyglių žiemą","Ji auga tik žalioje žolėje","Jos kamienas žalias","Ji žydi žaliais žiedais"], e:"Eglė spyglius keičia palaipsniui, todėl visus metus lieka žalia."},
+  {q:"Kurio gyvūno ragus turi ir patinai, ir patelės?", a:["Šiaurės elnio","Briedžio","Stirnos","Tauriojo elnio"], e:"Šiaurės elniai – vieninteliai elniniai, kurių ir patelės turi ragus."},
+  {q:"Kuriame Žemės pusrutulyje gyvena beveik visi pingvinai?", a:["Pietiniame","Šiauriniame","Tik ant pusiaujo","Abiejuose po lygiai"], e:"Pingvinai gyvena pietiniame pusrutulyje – Šiaurės ašigalyje jų nėra! Ten gyvena baltieji lokiai."},
+  {q:"Kiek dienų praeina nuo Kalėdų (gruodžio 25 d.) iki Naujųjų metų (sausio 1 d.)?", a:["7","6","5","8"], e:"Nuo gruodžio 25 iki sausio 1 – lygiai 7 dienos (savaitė)."},
+  /* ---- IT ir skaitmeninis saugumas ---- */
+  {q:"💻 Kokią spalvą reiškia HEX kodas #FF0000?", a:["Raudoną","Žalią","Mėlyną","Baltą"], e:"#RRGGBB: FF raudonos, 00 žalios, 00 mėlynos – gryna raudona."},
+  {q:"💻 Kokia spalva yra #FFFFFF?", a:["Balta","Juoda","Pilka","Geltona"], e:"Visos trys spalvos maksimalios (FF) – gaunama balta."},
+  {q:"💻 Kaip dvejetaine sistema užrašomas skaičius 12 (Kūčių patiekalų skaičius)?", a:["1100","1010","1110","1001"], e:"12 = 8 + 4 = 1100₂."},
+  {q:"💻 Kiek bitų yra viename baite?", a:["8","4","10","16"], e:"1 baitas = 8 bitai."},
+  {q:"💻 Kuris HTML elementas skirtas pačiai didžiausiai antraštei „Linksmų Kalėdų!“?", a:["<h1>","<h6>","<p>","<title>"], e:"<h1> – svarbiausia ir didžiausia antraštė, <h6> – mažiausia."},
+  {q:"💻 Ką išspausdins Python komanda print(\"Ho\" * 3)?", a:["HoHoHo","Ho3","Ho Ho Ho","Klaidą"], e:"Eilutę padauginus iš skaičiaus, ji pakartojama: \"Ho\" * 3 = \"HoHoHo\"."},
+  {q:"💻 Kuris slaptažodis yra saugiausias?", a:["Sn13g@s_K4l3d0s!","kaledos","123456","jonas2014"], e:"Saugus slaptažodis ilgas ir turi didžiųjų bei mažųjų raidžių, skaičių ir simbolių."},
+  {q:"💻 Gavai žinutę: „Kalėdų Senelis dovanoja telefoną – tik įvesk savo slaptažodį!“ Kas tai?", a:["Sukčiavimas (phishing)","Tikras prizas","Mokyklos žinutė","Kalėdų tradicija"], e:"Niekada nevesk slaptažodžio pagal nuorodą iš nepažįstamų žinučių – tai sukčiai."},
+  {q:"💻 24 mokiniai po lygiai pasidalijo 72 meduolius. Kiek gavo kiekvienas?", a:["3","4","2","6"], e:"72 : 24 = 3 meduoliai kiekvienam."}
 ];
 
 /* ===================== BENDRA ===================== */

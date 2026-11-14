@@ -134,6 +134,30 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--g);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .hostctl{display:flex;gap:8px;flex-wrap:wrap}
+/* ATASKAITA */
+#report{margin-top:26px;text-align:left}
+#end.wide{max-width:1180px!important}
+.rtable td.miss{min-width:280px;font-size:.8rem;color:#ffb3c0}
+#report h2{font-family:'Orbitron';font-size:1.2rem;color:var(--c);margin:22px 0 10px}
+.rtable{width:100%;border-collapse:collapse;font-size:.88rem}
+.rtable th,.rtable td{border-bottom:1px solid var(--dim);padding:7px 6px;text-align:left;vertical-align:top}
+.rtable th{color:var(--c);font-size:.75rem;letter-spacing:1px;cursor:pointer;user-select:none;white-space:nowrap}
+.rtable td{color:#d7ffe8}
+.rtable td.n{text-align:right;font-variant-numeric:tabular-nums}
+.rtable tr.weak td{background:rgba(255,59,92,.08)}
+.acc{display:inline-block;min-width:44px;font-weight:800}
+.qbar{height:8px;background:#062214;border-radius:9px;overflow:hidden;min-width:80px}
+.qbar div{height:100%;background:var(--g)}
+.tscroll{overflow-x:auto}
+.rbtns{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+.legend{font-size:.8rem;color:#5f9c7a;margin-top:6px}
+@media print{
+  body{background:#fff;color:#000} canvas#rain,#toast,body::after,.rbtns,#eAgain,#eHome,.podium,#stats,#rest{display:none!important}
+  .panel{background:#fff;border:none;box-shadow:none} .glow{text-shadow:none;color:#000}
+  .rtable th{color:#000} .rtable td{color:#000;border-bottom:1px solid #ccc} .rtable tr.weak td{background:#ffe9ec}
+  #report h2{color:#000} .qbar{border:1px solid #999} .qbar div{background:#333} .tag,.muted,.legend{color:#555}
+  #end{max-width:none!important}
+}
 </style>
 </head>
 <body>
@@ -184,7 +208,7 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
 <!-- ================= PLAY (mokinys) ================= -->
 <section id="play" class="hidden" style="flex:1;display:flex;flex-direction:column">
   <div class="hud panel">
-    <div><div class="lbl">HAKERIS</div><div style="font-weight:800;font-size:1.1rem" id="pName"></div></div>
+    <div><div class="lbl">HAKERIS · <span id="pNet" style="color:var(--g)">● RYŠYS OK</span></div><div style="font-weight:800;font-size:1.1rem" id="pName"></div></div>
     <div style="text-align:center"><div class="lbl">LIKO LAIKO</div><div class="big" id="pTimer">–:––</div></div>
     <div style="text-align:right"><div class="lbl">TAVO KRIPTOVALIUTA</div><div class="big gold" id="pCoins">❄ 0</div></div>
   </div>
@@ -250,6 +274,18 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
   <div id="myPlace" style="font-size:1.15rem;font-weight:800"></div>
   <div class="stats" id="stats"></div>
   <div class="restlist" id="rest"></div>
+  <div id="report" class="hidden">
+    <h2>📋 MOKINIŲ ATASKAITA</h2>
+    <div class="muted" id="rMeta" style="font-size:.85rem"></div>
+    <div class="rbtns">
+      <button class="btn sm" id="rCsv">⬇ Atsisiųsti (Excel / CSV)</button>
+      <button class="btn sm cy" id="rPrint">🖨 Spausdinti / PDF</button>
+    </div>
+    <div class="tscroll"><table class="rtable" id="rTable"></table></div>
+    <div class="legend">Spustelėk stulpelio pavadinimą, kad surikiuotum. Raudonai pažymėti mokiniai, kurių tikslumas mažesnis nei 50 %.</div>
+    <h2>❓ KLAUSIMAI PAGAL SUNKUMĄ</h2>
+    <div class="tscroll"><table class="rtable" id="qTable"></table></div>
+  </div>
   <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
     <button class="btn hidden" id="eAgain">↻ Naujas žaidimas su tais pačiais žaidėjais</button>
     <button class="btn sm" id="eHome">⌂ Į pradžią</button>
@@ -333,7 +369,7 @@ $('eHome').onclick = ()=> { location.href = location.pathname; };
 /* =====================================================================
    MOKYTOJAS (HOST) – žaidimo serveris, visa tiesa saugoma čia
    ===================================================================== */
-const H = { peer:null, code:null, players:new Map(), conns:new Map(), phase:'lobby', left:300, duration:300, timer:null, pending:new Map() };
+const H = { qs:{}, startedAt:null, peer:null, code:null, players:new Map(), conns:new Map(), phase:'lobby', left:300, duration:300, timer:null, pending:new Map() };
 
 function startHost(){
   show('hLobby');
@@ -377,9 +413,15 @@ function hostHandle(conn, d){
   if(d.t==='join') return hostJoin(conn, d);
   const p = H.players.get(conn.__pid);
   if(!p || p.kicked) return;
+  p.lastSeen = Date.now(); if(!p.online){ p.online=true; renderLobby(); }
+  if(d.t==='ping') return;
   if(H.phase!=='game') return;
   switch(d.t){
-    case 'answer': d.ok ? p.right++ : p.wrong++; break;
+    case 'answer': {
+      d.ok ? p.right++ : p.wrong++;
+      const qi = Number.isInteger(d.q) && d.q>=0 && d.q<QUESTIONS.length ? d.q : -1;
+      if(qi>=0){ const st=(H.qs[qi] ||= {r:0,w:0}); d.ok?st.r++:st.w++; if(!d.ok) p.missed[qi]=(p.missed[qi]||0)+1; }
+      break; }
     case 'gain': {
       const amt = Math.max(0, Math.min(5000, Math.floor(+d.amt||0)));
       p.coins += amt; hostState(); break; }
@@ -393,7 +435,7 @@ function hostHandle(conn, d){
       hSend(p,{t:'hackOpts', target:tg.id, tname:tg.name, tav:tg.av, opts:shuffle([tg.pw,...fakes])});
       break; }
     case 'hackGuess': {
-      const tid = H.pending.get(p.id); H.pending.delete(p.id);
+      const tid = H.pending.get(p.id); H.pending.delete(p.id); p.hackTries++;
       const tg = H.players.get(tid);
       if(!tg || tid!==d.target){ hSend(p,{t:'hackFail',why:'Įsilaužimas nebegalioja'}); break; }
       if(d.pw !== tg.pw){ hSend(p,{t:'hackRes', ok:false, timeout:d.pw===null, pw:tg.pw, tname:tg.name}); break; }
@@ -428,7 +470,7 @@ function hostJoin(conn, d){
     const pw = PASSWORDS.includes(d.pw) ? d.pw : pick(PASSWORDS);
     p = { id:'p'+Math.random().toString(36).slice(2,9), token:Math.random().toString(36).slice(2)+Date.now().toString(36),
           name, av: AVATARS.includes(d.av)?d.av:pick(AVATARS), pw, coins:0, shield:false,
-          right:0, wrong:0, hacks:0, stolen:0, lost:0, online:true, kicked:false };
+          right:0, wrong:0, hacks:0, hackTries:0, stolen:0, lost:0, missed:{}, online:true, kicked:false };
     H.players.set(p.id,p);
     if(H.phase==='game') hostFeed(`➕ ${p.av} ${p.name} prisijungė prie žaidimo`, '');
   }
@@ -469,7 +511,8 @@ function renderLobby(){
 $('hStart').onclick = ()=>{
   if(![...H.players.values()].some(p=>!p.kicked)){ toast("Palaukite, kol prisijungs bent vienas žaidėjas.", false); return; }
   H.phase='game'; H.left=H.duration; $('hLog').innerHTML='';
-  H.players.forEach(p=>{ p.coins=0; p.shield=false; p.right=p.wrong=p.hacks=p.stolen=p.lost=0; });
+  H.players.forEach(p=>{ p.coins=0; p.shield=false; p.right=p.wrong=p.hacks=p.hackTries=p.stolen=p.lost=0; p.missed={}; });
+  H.qs={}; H.startedAt=new Date();
   show('hGame'); hostFeed('▶ Žaidimas prasidėjo! Sėkmės, hakeriai!', 'good');
   hBroadcast({t:'start', left:H.left});
   hostState();
@@ -504,19 +547,69 @@ function hostEnd(){
   const ranking=full.map(p=>({id:p.id,name:p.name,av:p.av,coins:p.coins}));
   full.forEach((p,i)=>hSend(p,{t:'end', ranking, place:i+1, stats:{right:p.right,wrong:p.wrong,hacks:p.hacks,stolen:p.stolen,lost:p.lost}}));
   renderEnd(ranking, null, null);
+  buildReport(full);
   $('eAgain').classList.remove('hidden');
 }
+/* ===================== ATASKAITA (tik mokytojui) ===================== */
+let REPORT = [];
+function buildReport(full){
+  const n=full.length;
+  REPORT = full.map((p,i)=>{
+    const tot=p.right+p.wrong;
+    const missed=Object.entries(p.missed).sort((a,b)=>b[1]-a[1]).map(([qi])=>QUESTIONS[qi].q.replace(/^💻 /,''));
+    return {place:i+1, name:p.name, av:p.av, coins:p.coins, right:p.right, wrong:p.wrong, total:tot,
+      acc: tot?Math.round(p.right/tot*100):0, hacks:p.hacks, tries:p.hackTries, stolen:p.stolen, lost:p.lost, missed};
+  });
+  const d=H.startedAt||new Date();
+  const mins=Math.max(1,Math.round((Date.now()-d.getTime())/60000));
+  $('rMeta').textContent = `Data: ${d.toLocaleDateString('lt-LT')} ${d.toLocaleTimeString('lt-LT',{hour:'2-digit',minute:'2-digit'})} · Žaidėjai: ${n} · Trukmė: ~${mins} min · Kodas: ${H.code}`;
+  renderReportTable('place', true);
+  // klausimai
+  const qrows = Object.entries(H.qs).map(([qi,st])=>({q:QUESTIONS[qi].q, a:QUESTIONS[qi].a[0], r:st.r, w:st.w, t:st.r+st.w, acc:Math.round(st.r/(st.r+st.w)*100)}))
+    .sort((a,b)=>a.acc-b.acc || b.t-a.t);
+  $('qTable').innerHTML = `<tr><th>Klausimas</th><th>Teisingas atsakymas</th><th>Atsakyta</th><th>Teisingai</th><th></th></tr>` +
+    (qrows.map(r=>`<tr class="${r.acc<50?'weak':''}"><td>${esc(r.q)}</td><td>${esc(r.a)}</td><td class="n">${r.t}</td><td class="n"><span class="acc ${r.acc<50?'red':'gold'}">${r.acc}%</span></td><td><div class="qbar"><div style="width:${r.acc}%"></div></div></td></tr>`).join('')
+     || '<tr><td colspan="5" class="muted">Į klausimus dar niekas neatsakė.</td></tr>');
+  $('report').classList.remove('hidden'); $('end').classList.add('wide');
+}
+let rSort={k:'place',asc:true};
+function renderReportTable(k, asc){
+  rSort={k,asc};
+  const rows=[...REPORT].sort((a,b)=>{ const x=a[k], y=b[k]; const c = typeof x==='string' ? x.localeCompare(y,'lt') : x-y; return asc?c:-c; });
+  const cols=[['place','Vt.'],['name','Mokinys'],['coins','❄ Taškai'],['right','Teisingi'],['wrong','Klaidingi'],['acc','Tikslumas'],['hacks','Įsilaužimai'],['stolen','Pavogė'],['lost','Prarado'],['missed','Klydo klausimuose']];
+  $('rTable').innerHTML = '<tr>'+cols.map(([c,l])=>`<th data-k="${c}">${l}${c===k?(asc?' ▲':' ▼'):''}</th>`).join('')+'</tr>' +
+    rows.map(r=>`<tr class="${r.total && r.acc<50?'weak':''}"><td class="n">${r.place}</td><td>${r.av} ${esc(r.name)}</td><td class="n gold">${fmt(r.coins)}</td><td class="n">${r.right}</td><td class="n">${r.wrong}</td>
+      <td class="n"><span class="acc ${r.total && r.acc<50?'red':''}">${r.total?r.acc+'%':'–'}</span></td><td class="n">${r.hacks}/${r.tries}</td><td class="n">${fmt(r.stolen)}</td><td class="n">${fmt(r.lost)}</td>
+      <td class="miss">${r.missed.length? r.missed.slice(0,3).map(esc).join('<br>') + (r.missed.length>3?`<br><span class="muted">+ dar ${r.missed.length-3}</span>`:'') : '<span class="muted">–</span>'}</td></tr>`).join('');
+  $('rTable').querySelectorAll('th').forEach(th=>th.onclick=()=>{ const kk=th.dataset.k; if(kk==='missed') return; renderReportTable(kk, rSort.k===kk ? !rSort.asc : kk==='name'||kk==='place'); });
+}
+$('rCsv').onclick = ()=>{
+  const q = v => `"${String(v).replace(/"/g,'""')}"`;
+  const head=['Vieta','Mokinys','Taškai','Teisingi','Klaidingi','Tikslumas %','Įsilaužimai (pavyko)','Įsilaužimai (bandyta)','Pavogė','Prarado','Klydo klausimuose'];
+  const lines=[head.map(q).join(';')].concat(REPORT.map(r=>[r.place,r.name,r.coins,r.right,r.wrong,r.total?r.acc:'',r.hacks,r.tries,r.stolen,r.lost,r.missed.join(' | ')].map(q).join(';')));
+  lines.push('');
+  lines.push(['Klausimas','Teisingas atsakymas','Atsakyta','Teisingai %'].map(q).join(';'));
+  Object.entries(H.qs).forEach(([qi,st])=>lines.push([QUESTIONS[qi].q,QUESTIONS[qi].a[0],st.r+st.w,Math.round(st.r/(st.r+st.w)*100)].map(q).join(';')));
+  const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  const d=H.startedAt||new Date();
+  a.download=`ataskaita_siaures_serveris_${d.toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+$('rPrint').onclick = ()=> window.print();
+
 $('eAgain').onclick = ()=>{
   H.phase='lobby'; H.pending.clear();
   H.players.forEach(p=>{ p.coins=0; p.shield=false; });
   hBroadcast({t:'lobby'});
+  $('report').classList.add('hidden'); $('end').classList.remove('wide');
   show('hLobby'); renderLobby();
 };
 
 /* =====================================================================
    MOKINYS (CLIENT)
    ===================================================================== */
-const C = { guessT:null, peer:null, conn:null, code:null, me:null, token:null, pw:null, av:null, name:null, list:[], coins:0, shield:false,
+const C = { guessT:null, lastMsg:0, outbox:[], awaitHack:null, awaitRes:null, hackT:null, peer:null, conn:null, code:null, me:null, token:null, pw:null, av:null, name:null, list:[], coins:0, shield:false,
             left:0, phase:'lobby', deck:[], qi:0, right:0, double:false, busy:false, retry:0, kicked:false, screen:null };
 
 function initJoin(){
@@ -555,16 +648,18 @@ function clientConnect(){
   C.peer = peer;
   let opened=false;
   peer.on('open', ()=>{
+    if(peer!==C.peer) return;
     const conn = peer.connect(PREFIX + C.code, {reliable:true});
     C.conn = conn;
-    const to = setTimeout(()=>{ if(!opened){ joinFail('Nepavyko prisijungti. Patikrink kodą ir bandyk dar kartą.'); } }, 12000);
-    conn.on('open', ()=>{ opened=true; clearTimeout(to); C.retry=0;
+    const to = setTimeout(()=>{ if(!opened && peer===C.peer){ if(C.me) clientLost(); else joinFail('Nepavyko prisijungti. Patikrink kodą ir bandyk dar kartą.'); } }, 12000);
+    conn.on('open', ()=>{ if(conn!==C.conn) return; opened=true; clearTimeout(to);
       conn.send({t:'join', name:C.name, av:C.av, pw:C.pw, token:C.token}); });
-    conn.on('data', clientHandle);
-    conn.on('close', ()=>clientLost());
-    conn.on('error', ()=>clientLost());
+    conn.on('data', d=>{ if(conn===C.conn) clientHandle(d); });
+    conn.on('close', ()=>{ if(conn===C.conn) clientLost(); });
+    conn.on('error', ()=>{ if(conn===C.conn) clientLost(); });
   });
   peer.on('error', err=>{
+    if(peer!==C.peer) return;
     if(err.type==='peer-unavailable'){
       if(C.me){ clientLost(); return; }
       joinFail('Žaidimas su tokiu kodu nerastas. Patikrink kodą.'); return;
@@ -579,17 +674,43 @@ let lostT=null;
 function clientLost(){
   if(C.kicked || C.phase==='end' || !C.me) return;
   if(lostT) return;
-  toast('⚠ Ryšys nutrūko – jungiamasi iš naujo...', false);
-  lostT=setTimeout(()=>{ lostT=null; C.retry++; if(C.retry>8){ toast('Nepavyko atkurti ryšio. Perkrauk puslapį.', false); return; } clientConnect(); }, 1500 + C.retry*700);
+  setNet(false);
+  if(C.retry===0) toast('⚠ Ryšys su mokytojo kompiuteriu nutrūko – jungiamasi iš naujo...', false);
+  abortHack('⚠ Ryšys nutrūko – įsilaužimas nutrauktas');
+  lostT=setTimeout(()=>{ lostT=null; C.retry++; C.lastMsg=Date.now();
+    if(C.retry>20){ toast('Nepavyko atkurti ryšio. Perkrauk puslapį ir prisijunk tuo pačiu kodu.', false); return; }
+    clientConnect(); }, Math.min(1000 + C.retry*600, 5000));
+}
+function setNet(ok){ const n=$('pNet'); if(!n) return; n.textContent = ok?'● RYŠYS OK':'● JUNGIAMASI...'; n.style.color = ok?'var(--g)':'var(--r)'; if(!ok) n.classList.add('low'); else n.classList.remove('low'); }
+/* sargas: žaidimo metu mokytojas siunčia būseną kas sekundę – jei tyla >5 s, ryšys laikomas nutrūkusiu */
+setInterval(()=>{
+  if(!C.me || C.kicked || C.phase==='end' || C.screen!=='play') return;
+  if(Date.now()-C.lastMsg > 5000) clientLost();
+  else cSend({t:'ping'});
+}, 1500);
+function abortHack(msg){
+  if(!C.awaitHack && !C.awaitRes) return;
+  C.awaitHack=null; C.awaitRes=null; clearTimeout(C.hackT); clearInterval(C.guessT);
+  toast(msg, false); if(C.phase==='game') setTimeout(nextQuestion, 600);
 }
 
-function cSend(msg){ if(C.conn && C.conn.open){ try{ C.conn.send(msg); }catch(e){} } }
+const QUEUEABLE = {gain:1, virus:1, shield:1, answer:1};
+function cSend(msg){
+  if(C.conn && C.conn.open){ try{ C.conn.send(msg); return true; }catch(e){} }
+  if(QUEUEABLE[msg.t]) C.outbox.push(msg);
+  return false;
+}
+function flushOutbox(){ const q=C.outbox; C.outbox=[]; q.forEach(m=>cSend(m)); }
 
 function clientHandle(d){
   if(!d || typeof d!=='object') return;
+  C.lastMsg = Date.now();
   switch(d.t){
     case 'welcome':
+      if(C.me && C.retry>0) toast('✔ Ryšys atkurtas!', true);
+      C.retry=0; setNet(true);
       C.me=d.id; C.token=d.token; C.name=d.name; C.av=d.av; C.pw=d.pw; C.coins=d.coins; C.left=d.left;
+      setTimeout(flushOutbox, 300);
       ss.set('snhack',{code:C.code,name:C.name,av:C.av,token:C.token});
       $('jGo').disabled=false; $('jErr').textContent='';
       $('wAv').textContent=C.av; $('wName').textContent=C.name; $('wPw').textContent=C.pw;
@@ -615,9 +736,9 @@ function clientHandle(d){
       toast(`🛡️ Tavo ugniasienė sustabdė ${d.by}!`, true); break;
     case 'virus':
       addLog($('pLog'), `🦠 Virusas! Praradai ❄ ${fmt(d.amt)}`, 'bad'); break;
-    case 'hackOpts': showPwGuess(d); break;
-    case 'hackRes': showHackResult(d); break;
-    case 'hackFail': toast(d.why||'Įsilaužti nepavyko', false); C.busy=false; nextQuestion(); break;
+    case 'hackOpts': if(C.awaitHack===d.target){ C.awaitHack=null; clearTimeout(C.hackT); showPwGuess(d); } break;
+    case 'hackRes': if(C.awaitRes){ C.awaitRes=null; clearTimeout(C.hackT); showHackResult(d); } break;
+    case 'hackFail': if(C.awaitHack||C.awaitRes){ C.awaitHack=null; C.awaitRes=null; clearTimeout(C.hackT); toast(d.why||'Įsilaužti nepavyko', false); nextQuestion(); } break;
     case 'end': C.phase='end'; C.screen='end'; renderEnd(d.ranking, d.place, d.stats); break;
   }
 }
@@ -657,7 +778,7 @@ function answer(btn,o,opts,q){
   if(C.phase!=='game') return;
   const btns=[...$('main').querySelectorAll('.opt')];
   btns.forEach((b,i)=>{ b.disabled=true; if(opts[i].ok) b.classList.add('right'); });
-  cSend({t:'answer', ok:o.ok});
+  cSend({t:'answer', ok:o.ok, q:QUESTIONS.indexOf(q)});
   if(o.ok){ C.right++; setTimeout(showChests,550); return; }
   btn.classList.add('wrong');
   const main=$('main');
@@ -724,7 +845,13 @@ function chooseTarget(){
   list.forEach(p=>{ const b=document.createElement('button'); b.className='tg';
     b.innerHTML=`<div class="av">${p.av}</div><div class="nm"></div><div class="gold">❄ ${fmt(p.coins)}</div>`;
     b.querySelector('.nm').textContent=p.name;
-    b.onclick=()=>{ box.querySelectorAll('button').forEach(x=>x.disabled=true); cSend({t:'hackReq', target:p.id}); };
+    b.onclick=()=>{
+      box.querySelectorAll('button').forEach(x=>x.disabled=true);
+      b.innerHTML += '<div class="muted" style="font-size:.8rem;margin-top:6px"><span class="spinner"></span>Jungiamasi...</div>';
+      C.awaitHack=p.id; clearTimeout(C.hackT);
+      C.hackT=setTimeout(()=>{ abortHack('⚠ Serveris neatsakė – bandyk vėliau'); clientLost(); }, 5000);
+      if(!cSend({t:'hackReq', target:p.id})){ abortHack('⚠ Nėra ryšio su mokytojo kompiuteriu'); clientLost(); }
+    };
     box.appendChild(b); });
 }
 function showPwGuess(d){
@@ -738,12 +865,17 @@ function showPwGuess(d){
   $('tn').textContent=`${d.tav} ${d.tname}`;
   const box=main.querySelector('.pw');
   d.opts.forEach(pw=>{ const b=document.createElement('button'); b.textContent=pw;
-    b.onclick=()=>{ clearInterval(C.guessT); box.querySelectorAll('button').forEach(x=>x.disabled=true); b.style.boxShadow='0 0 18px var(--c)'; cSend({t:'hackGuess', target:d.target, pw}); };
+    b.onclick=()=>{ clearInterval(C.guessT); box.querySelectorAll('button').forEach(x=>x.disabled=true); b.style.boxShadow='0 0 18px var(--c)'; sendGuess(d.target, pw); };
     box.appendChild(b); });
   let sec=GUESS_TIME; const tl=$('gtime'); tl.textContent=sec;
   clearInterval(C.guessT);
   C.guessT=setInterval(()=>{ sec--; tl.textContent=sec; if(sec<=3) tl.classList.add('low');
-    if(sec<=0){ clearInterval(C.guessT); box.querySelectorAll('button').forEach(x=>x.disabled=true); cSend({t:'hackGuess', target:d.target, pw:null}); } },1000);
+    if(sec<=0){ clearInterval(C.guessT); box.querySelectorAll('button').forEach(x=>x.disabled=true); sendGuess(d.target, null); } },1000);
+}
+function sendGuess(target, pw){
+  C.awaitRes=target; clearTimeout(C.hackT);
+  C.hackT=setTimeout(()=>{ abortHack('⚠ Serveris neatsakė – bandyk vėliau'); clientLost(); }, 5000);
+  if(!cSend({t:'hackGuess', target, pw})){ abortHack('⚠ Nėra ryšio su mokytojo kompiuteriu'); clientLost(); }
 }
 function showHackResult(d){
   const res=$('hres'); if(!res){ nextQuestion(); return; }

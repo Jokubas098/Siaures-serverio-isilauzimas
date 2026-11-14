@@ -134,6 +134,20 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--g);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .hostctl{display:flex;gap:8px;flex-wrap:wrap}
+/* TAISYKLĖS */
+.rules{text-align:left;margin-top:18px}
+.rules h3{font-family:'Orbitron';color:var(--c);font-size:1rem;letter-spacing:2px;margin:0 0 10px}
+.rules ol{margin:0;padding-left:0;list-style:none;counter-reset:r}
+.rules li{counter-increment:r;position:relative;padding:8px 0 8px 40px;border-bottom:1px dashed var(--dim);line-height:1.5;color:#d7ffe8;font-size:.95rem}
+.rules li::before{content:counter(r);position:absolute;left:0;top:8px;width:28px;height:28px;border:1px solid var(--g2);border-radius:6px;display:grid;place-items:center;color:var(--g);font-weight:800;font-size:.85rem}
+.rules .loot{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin-top:6px;font-size:.88rem}
+@media(max-width:520px){.rules .loot{grid-template-columns:1fr}}
+.rules b{color:var(--gold)}
+.rules .win{margin-top:12px;padding:10px 12px;border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-weight:800;text-align:center}
+#rulesBox{margin:auto;max-width:700px;width:100%;padding:26px 28px}
+.hlRules{margin-top:16px;padding-top:6px;border-top:1px solid var(--dim)}
+.hlRules .rules li{font-size:.85rem;padding:5px 0 5px 34px}
+.hlRules .rules li::before{width:24px;height:24px;top:5px}
 /* ATASKAITA */
 #report{margin-top:26px;text-align:left}
 #end.wide{max-width:1180px!important}
@@ -170,10 +184,19 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
   <div class="tag">// NORTH_POLE_SERVER v24.12</div>
   <h1 class="glow">❄️ ŠIAURĖS SERVERIO<br>ĮSILAUŽIMAS</h1>
   <p class="muted" style="line-height:1.6">Kalėdų viktorina visai klasei. Atsakyk į klausimus, rink ❄ SniegoCoin<br>ir įsilaužk į klasės draugus, atspėjęs jų slaptažodį!</p>
+  <div style="margin-top:18px"><button class="btn sm cy" id="bRules">📖 Žaidimo taisyklės</button></div>
   <div class="home-btns">
     <button id="bJoin"><span class="ic">🧑‍💻</span>PRISIJUNGTI<br><span class="muted" style="font-size:.8rem">mokiniams</span></button>
     <button id="bHost"><span class="ic">🖥️</span>SUKURTI ŽAIDIMĄ<br><span class="muted" style="font-size:.8rem">mokytojui</span></button>
   </div>
+</section>
+
+<!-- ================= TAISYKLĖS ================= -->
+<section id="rulesBox" class="panel hidden">
+  <div class="tag">// INSTRUKCIJA.TXT</div>
+  <h1 class="glow orb" style="font-size:1.6rem;margin:6px 0 0">📖 Kaip žaisti?</h1>
+  <div class="rulesHere"></div>
+  <div style="margin-top:20px;text-align:center"><button class="btn" id="rulesBack">← Supratau!</button></div>
 </section>
 
 <!-- ================= JOIN ================= -->
@@ -203,6 +226,7 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
   <p class="muted">Tavo slaptažodis: <span class="cyan" id="wPw"></span> – niekam nesakyk!</p>
   <p style="margin-top:24px"><span class="spinner"></span>Laukiama, kol mokytojas pradės žaidimą...</p>
   <p class="muted" id="wCount"></p>
+  <div class="rulesHere"></div>
 </section>
 
 <!-- ================= PLAY (mokinys) ================= -->
@@ -246,6 +270,7 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
       </div>
       <p class="muted" style="font-size:.8rem;margin:6px 0 0">Spustelėk ✕, kad pašalintum žaidėją.</p>
       <div class="chips" id="hChips"></div>
+      <div class="hlRules"><div class="rulesHere"></div></div>
     </div>
   </div>
 </section>
@@ -373,7 +398,7 @@ const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j
 const fmt = n => Number(n||0).toLocaleString('lt-LT');
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mmss = s => `${Math.floor(Math.max(0,s)/60)}:${String(Math.max(0,s)%60).padStart(2,'0')}`;
-const SCREENS = ["home","join","wait","play","hLobby","hGame","end"];
+const SCREENS = ["home","rulesBox","join","wait","play","hLobby","hGame","end"];
 function show(id){ SCREENS.forEach(s=>$(s).classList.toggle('hidden', s!==id)); window.scrollTo(0,0); }
 let toastT;
 function toast(msg,good){ const t=$('toast'); t.textContent=msg; t.className=good?'good show':'show'; clearTimeout(toastT); toastT=setTimeout(()=>t.className=good?'good':'',3400); }
@@ -387,6 +412,19 @@ function addLog(el, text, cls, max=60){
   while(el.children.length>max) el.lastChild.remove();
 }
 
+const RULES_HTML = `<div class="rules"><h3>// TAISYKLĖS</h3><ol>
+  <li><b>Atsakyk į klausimą.</b> Teisingai – gausi prieigą prie serverio. Klaidingai – sistema užsirakins 4 sekundėms ir parodys paaiškinimą.</li>
+  <li><b>Pasirink vieną iš 3 serverio dėžių.</b> Kas jose gali būti:
+    <div class="loot"><span>❄ <b>SniegoCoin</b> – taškai</span><span>⚡ <b>x2</b> – kitas lobis dvigubas</span>
+    <span>🛡️ <b>Ugniasienė</b> – apsaugo nuo 1 įsilaužimo</span><span>🔓 <b>Įsilaužimas</b> – vogk iš draugo</span>
+    <span>🦠 <b>Virusas</b> – prarandi 15 %</span><span>💾 <b>Tuščias failas</b> – nieko</span></div></li>
+  <li><b>Įsilaužimas:</b> pasirink draugą ir per <b>8 sekundes</b> atspėk jo slaptažodį iš 4 variantų. Variantai labai panašūs – žiūrėk atidžiai (0 ir O, 1 ir l, 3 ir e)! Pavyks – pavogsi <b>10–30 %</b> jo SniegoCoin.</li>
+  <li><b>Saugok savo slaptažodį!</b> Niekam jo nesakyk ir neleisk žiūrėti į savo ekraną – kiti bandys įsilaužti į tave.</li>
+  <li>Žaisk sąžiningai: neliesk kitų įrenginių ir neperkrauk puslapio be reikalo. Jei ryšys nutrūks – žaidimas prisijungs iš naujo pats.</li>
+</ol><div class="win">🏆 Laimi tas, kas baigiantis laikui turi daugiausia ❄ SniegoCoin!</div></div>`;
+document.querySelectorAll('.rulesHere').forEach(el=>el.innerHTML=RULES_HTML);
+$('bRules').onclick = ()=> show('rulesBox');
+$('rulesBack').onclick = ()=> show('home');
 $('bJoin').onclick = ()=>{ initJoin(); show('join'); };
 $('bHost').onclick = ()=>{ if(noPeer()) return; startHost(); };
 $('jBack').onclick = ()=> show('home');

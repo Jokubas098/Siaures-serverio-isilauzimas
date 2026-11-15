@@ -134,6 +134,50 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--g);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;vertical-align:middle;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .hostctl{display:flex;gap:8px;flex-wrap:wrap}
+/* MOKYTOJAI */
+.tbox{margin:auto;max-width:520px;width:100%;padding:28px;text-align:center}
+.tbtn-g{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:#fff;color:#1f1f1f;border:none;border-radius:8px;padding:13px;font-weight:800;font-size:1rem}
+.tbtn-g:hover{box-shadow:0 0 18px rgba(255,255,255,.5)}
+.or{display:flex;align-items:center;gap:10px;color:#5f9c7a;font-size:.8rem;margin:18px 0 4px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--dim)}
+.linkbtn{background:none;border:none;color:var(--c);text-decoration:underline;font-size:.85rem;padding:4px}
+.note{font-size:.9rem;line-height:1.55;color:#d7ffe8;background:rgba(77,225,255,.06);border:1px solid rgba(77,225,255,.3);border-radius:8px;padding:12px 14px;text-align:left;margin-top:14px}
+.dash{flex:1;display:flex;flex-direction:column;gap:14px}
+.dhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px}
+.dhead .who{font-size:.85rem;color:#8fe3b3}
+.sets{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.set{background:#00140a;border:1px solid var(--g2);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.set .tt{font-weight:800;color:#e9fff2;font-size:1.05rem;word-break:break-word}
+.set .meta{font-size:.78rem;color:#5f9c7a}
+.set .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.set .acts button{background:transparent;border:1px solid var(--g2);color:var(--g);border-radius:6px;padding:6px 9px;font-size:.8rem;font-weight:700}
+.set .acts button:hover{background:rgba(57,255,138,.15)}
+.set .acts .play{border-color:var(--gold);color:var(--gold)}
+.set .acts .del{border-color:var(--r);color:var(--r)}
+.set .acts .del.sure{background:var(--r);color:#fff}
+.badge{display:inline-block;font-size:.7rem;padding:2px 7px;border-radius:99px;border:1px solid var(--c);color:var(--c);margin-left:6px;vertical-align:middle}
+.secttl{font-size:.75rem;letter-spacing:2px;color:var(--c);font-weight:800;margin:6px 0 0}
+.edtop{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;padding:16px 18px;position:sticky;top:8px;z-index:5}
+.edtop .grow{flex:1;min-width:220px}
+.chk{display:flex;align-items:center;gap:8px;color:#d7ffe8;font-size:.9rem;cursor:pointer}
+.chk input{width:auto;accent-color:var(--g)}
+.qcard{padding:14px 16px;position:relative}
+.qcard.bad{border-color:var(--r);box-shadow:0 0 14px rgba(255,59,92,.4)}
+.qcard .qn{font-family:'Orbitron';color:var(--g);font-weight:900;margin-right:8px}
+.qcard .qtools{position:absolute;top:10px;right:10px;display:flex;gap:4px}
+.qcard .qtools button{background:#00140a;border:1px solid var(--dim);color:#8fe3b3;border-radius:5px;width:30px;height:28px}
+.qcard .qtools button:hover{border-color:var(--g)}
+.qcard .qtools .x{color:var(--r)}
+.qcard textarea,.qcard input{font-size:.95rem;padding:8px 10px;margin-top:6px}
+textarea{width:100%;background:#00140a;border:1px solid var(--g2);color:var(--g);font:inherit;border-radius:6px;padding:10px;outline:none;resize:vertical}
+textarea:focus{box-shadow:0 0 12px var(--g)}
+.ansgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;margin-top:4px}
+@media(max-width:600px){.ansgrid{grid-template-columns:1fr}}
+input.ok{border-color:var(--g);border-width:2px}
+.flab{font-size:.72rem;color:#5f9c7a;letter-spacing:1px;margin-top:8px}
+.ederr{color:var(--r);font-weight:700;font-size:.85rem;margin-top:6px}
+.pastebox{padding:16px 18px}
+.trow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--dim);color:#d7ffe8}
 /* TAISYKLĖS */
 .rules{text-align:left;margin-top:18px}
 .rules h3{font-family:'Orbitron';color:var(--c);font-size:1rem;letter-spacing:2px;margin:0 0 10px}
@@ -199,6 +243,76 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
   <div style="margin-top:20px;text-align:center"><button class="btn" id="rulesBack">← Supratau!</button></div>
 </section>
 
+<!-- ================= MOKYTOJO PRISIJUNGIMAS ================= -->
+<section id="tLogin" class="tbox panel hidden">
+  <div class="tag">// MOKYTOJO PRIEIGA</div>
+  <h1 class="glow orb" style="font-size:1.6rem;margin:8px 0 4px">👩‍🏫 Mokytojams</h1>
+  <div id="tlBody"></div>
+  <div style="margin-top:18px"><button class="btn sm" id="tlBack">← Atgal</button></div>
+</section>
+
+<!-- ================= MOKYTOJO SKYDELIS ================= -->
+<section id="tDash" class="dash hidden">
+  <div class="panel dhead">
+    <div><div class="tag">// MOKYTOJO SKYDELIS</div><div class="orb glow" style="font-size:1.3rem;margin-top:4px">👩‍🏫 Klausimų rinkiniai</div><div class="who" id="tdWho"></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn sm cy hidden" id="tdAdmin">👥 Mokytojai</button>
+      <button class="btn sm" id="tdOut">Atsijungti</button>
+    </div>
+  </div>
+  <div class="panel" style="padding:16px 18px">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn" id="tdNew">＋ Naujas rinkinys</button>
+      <label class="btn sm cy" style="margin:0;cursor:pointer">⬆ Įkelti iš failo<input type="file" id="tdFile" accept=".json,application/json" hidden></label>
+      <span class="muted" id="tdMsg" style="font-size:.85rem"></span>
+    </div>
+    <p class="secttl" style="margin-top:18px">// MANO RINKINIAI</p>
+    <div class="sets" id="tdMine" style="margin-top:10px"></div>
+    <p class="secttl" style="margin-top:22px">// KITŲ MOKYTOJŲ BENDRINAMI</p>
+    <div class="sets" id="tdShared" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- ================= REDAKTORIUS ================= -->
+<section id="tEdit" class="dash hidden">
+  <div class="panel edtop">
+    <div class="grow"><label style="margin-top:0">&gt; RINKINIO PAVADINIMAS</label><input id="edTitle" maxlength="80" placeholder="pvz. Kalėdos 6 klasei"></div>
+    <label class="chk"><input type="checkbox" id="edShared"> Bendrinti su kitais mokytojais</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn sm" id="edCancel">✕ Atšaukti</button>
+      <button class="btn" id="edSave">💾 Išsaugoti</button>
+    </div>
+    <div class="ederr" id="edErr" style="width:100%"></div>
+  </div>
+  <div class="panel pastebox">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <div><b class="cyan">📋 Įklijuoti iš Excel / Google Sheets</b><div class="muted" style="font-size:.8rem;margin-top:4px">Stulpeliai: Klausimas · Teisingas · Neteisingas 1 · Neteisingas 2 · Neteisingas 3 · Paaiškinimas (nebūtinas)</div></div>
+      <button class="btn sm cy" id="edPasteToggle">Atidaryti</button>
+    </div>
+    <div id="edPasteArea" class="hidden" style="margin-top:12px">
+      <textarea id="edPaste" rows="6" placeholder="Pažymėkite eilutes Excel'yje → Ctrl+C → čia Ctrl+V"></textarea>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap"><button class="btn sm" id="edPasteGo">＋ Pridėti klausimus</button><span class="muted" id="edPasteMsg" style="font-size:.85rem"></span></div>
+    </div>
+  </div>
+  <div id="edList" style="display:flex;flex-direction:column;gap:12px"></div>
+  <div style="text-align:center;margin:6px 0 30px"><button class="btn" id="edAdd">＋ Pridėti klausimą</button></div>
+</section>
+
+<!-- ================= ADMIN: MOKYTOJAI ================= -->
+<section id="tAdmin" class="tbox panel hidden" style="max-width:640px">
+  <div class="tag">// ADMINISTRAVIMAS</div>
+  <h1 class="glow orb" style="font-size:1.5rem;margin:8px 0 4px">👥 Mokytojų sąrašas</h1>
+  <p class="muted" style="font-size:.85rem">Tik šiame sąraše esantys el. paštai gali kurti žaidimus ir klausimų rinkinius.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;text-align:left">
+    <input id="taEmail" type="email" placeholder="mokytojo@el.pastas.lt" style="flex:1;min-width:200px">
+    <label class="chk"><input type="checkbox" id="taIsAdmin"> administratorius</label>
+    <button class="btn sm" id="taAdd">＋ Pridėti</button>
+  </div>
+  <div class="ederr" id="taErr"></div>
+  <div id="taList" style="margin-top:12px;text-align:left"></div>
+  <div style="margin-top:18px"><button class="btn sm" id="taBack">← Atgal</button></div>
+</section>
+
 <!-- ================= JOIN ================= -->
 <section id="join" class="box panel hidden">
   <div class="tag">// PRISIJUNGIMAS</div>
@@ -252,6 +366,7 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
       <div class="tag">// ŽAIDIMO KODAS</div>
       <div class="bigcode" id="hCode">·····</div>
       <div class="muted" id="hStatus"><span class="spinner"></span>Kuriamas serveris...</div>
+      <div class="gold" id="hSet" style="margin-top:10px;font-weight:800"></div>
       <p style="margin:18px 0 4px;font-weight:700">Mokiniai atsidaro:</p>
       <div class="url" id="hUrl"></div>
       <p class="muted" style="font-size:.85rem;margin:0">→ „Prisijungti“ → įveda kodą</p>
@@ -398,7 +513,7 @@ const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j
 const fmt = n => Number(n||0).toLocaleString('lt-LT');
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mmss = s => `${Math.floor(Math.max(0,s)/60)}:${String(Math.max(0,s)%60).padStart(2,'0')}`;
-const SCREENS = ["home","rulesBox","join","wait","play","hLobby","hGame","end"];
+const SCREENS = ["home","rulesBox","tLogin","tDash","tEdit","tAdmin","join","wait","play","hLobby","hGame","end"];
 function show(id){ SCREENS.forEach(s=>$(s).classList.toggle('hidden', s!==id)); window.scrollTo(0,0); }
 let toastT;
 function toast(msg,good){ const t=$('toast'); t.textContent=msg; t.className=good?'good show':'show'; clearTimeout(toastT); toastT=setTimeout(()=>t.className=good?'good':'',3400); }
@@ -426,16 +541,20 @@ document.querySelectorAll('.rulesHere').forEach(el=>el.innerHTML=RULES_HTML);
 $('bRules').onclick = ()=> show('rulesBox');
 $('rulesBack').onclick = ()=> show('home');
 $('bJoin').onclick = ()=>{ initJoin(); show('join'); };
-$('bHost').onclick = ()=>{ if(noPeer()) return; startHost(); };
+$('bHost').onclick = ()=>{ if(noPeer()) return; if(DB) openTeacher(); else startHost(BUILTIN); };
 $('jBack').onclick = ()=> show('home');
 $('eHome').onclick = ()=> { location.href = location.pathname; };
 
 /* =====================================================================
    MOKYTOJAS (HOST) – žaidimo serveris, visa tiesa saugoma čia
    ===================================================================== */
-const H = { qs:{}, startedAt:null, peer:null, code:null, players:new Map(), conns:new Map(), phase:'lobby', left:300, duration:300, timer:null, pending:new Map() };
+const H = { questions:[], setTitle:'', qs:{}, startedAt:null, peer:null, code:null, players:new Map(), conns:new Map(), phase:'lobby', left:300, duration:300, timer:null, pending:new Map() };
 
-function startHost(){
+function startHost(set){
+  set = set || BUILTIN;
+  H.questions = cleanQuestions(set.questions);
+  H.setTitle = set.title;
+  $('hSet').textContent = `📚 ${set.title} · ${kl(H.questions.length)}`;
   show('hLobby');
   $('hUrl').textContent = location.origin + location.pathname;
   const tryOpen = () => {
@@ -483,7 +602,7 @@ function hostHandle(conn, d){
   switch(d.t){
     case 'answer': {
       d.ok ? p.right++ : p.wrong++;
-      const qi = Number.isInteger(d.q) && d.q>=0 && d.q<QUESTIONS.length ? d.q : -1;
+      const qi = Number.isInteger(d.q) && d.q>=0 && d.q<H.questions.length ? d.q : -1;
       if(qi>=0){ const st=(H.qs[qi] ||= {r:0,w:0}); d.ok?st.r++:st.w++; if(!d.ok) p.missed[qi]=(p.missed[qi]||0)+1; }
       break; }
     case 'gain': {
@@ -540,7 +659,7 @@ function hostJoin(conn, d){
   }
   const old = H.conns.get(p.id); if(old && old!==conn){ old.__pid=null; try{ old.close(); }catch(e){} }
   conn.__pid = p.id; H.conns.set(p.id, conn); p.online = true;
-  try{ conn.send({t:'welcome', id:p.id, token:p.token, name:p.name, av:p.av, pw:p.pw, phase:H.phase, left:H.left, coins:p.coins}); }catch(e){}
+  try{ conn.send({t:'welcome', id:p.id, token:p.token, name:p.name, av:p.av, pw:p.pw, phase:H.phase, left:H.left, coins:p.coins, questions:H.questions}); }catch(e){}
   renderLobby(); hostState();
 }
 
@@ -578,7 +697,7 @@ $('hStart').onclick = ()=>{
   H.players.forEach(p=>{ p.coins=0; p.shield=false; p.right=p.wrong=p.hacks=p.hackTries=p.stolen=p.lost=0; p.missed={}; });
   H.qs={}; H.startedAt=new Date();
   show('hGame'); hostFeed('▶ Žaidimas prasidėjo! Sėkmės, hakeriai!', 'good');
-  hBroadcast({t:'start', left:H.left});
+  hBroadcast({t:'start', left:H.left, questions:H.questions});
   hostState();
   clearInterval(H.timer);
   H.timer = setInterval(()=>{
@@ -620,16 +739,16 @@ function buildReport(full){
   const n=full.length;
   REPORT = full.map((p,i)=>{
     const tot=p.right+p.wrong;
-    const missed=Object.entries(p.missed).sort((a,b)=>b[1]-a[1]).map(([qi])=>QUESTIONS[qi].q.replace(/^💻 /,''));
+    const missed=Object.entries(p.missed).sort((a,b)=>b[1]-a[1]).map(([qi])=>H.questions[qi].q);
     return {place:i+1, name:p.name, av:p.av, coins:p.coins, right:p.right, wrong:p.wrong, total:tot,
       acc: tot?Math.round(p.right/tot*100):0, hacks:p.hacks, tries:p.hackTries, stolen:p.stolen, lost:p.lost, missed};
   });
   const d=H.startedAt||new Date();
   const mins=Math.max(1,Math.round((Date.now()-d.getTime())/60000));
-  $('rMeta').textContent = `Data: ${d.toLocaleDateString('lt-LT')} ${d.toLocaleTimeString('lt-LT',{hour:'2-digit',minute:'2-digit'})} · Žaidėjai: ${n} · Trukmė: ~${mins} min · Kodas: ${H.code}`;
+  $('rMeta').textContent = `Rinkinys: ${H.setTitle} · Data: ${d.toLocaleDateString('lt-LT')} ${d.toLocaleTimeString('lt-LT',{hour:'2-digit',minute:'2-digit'})} · Žaidėjai: ${n} · Trukmė: ~${mins} min · Kodas: ${H.code}`;
   renderReportTable('place', true);
   // klausimai
-  const qrows = Object.entries(H.qs).map(([qi,st])=>({q:QUESTIONS[qi].q, a:QUESTIONS[qi].a[0], r:st.r, w:st.w, t:st.r+st.w, acc:Math.round(st.r/(st.r+st.w)*100)}))
+  const qrows = Object.entries(H.qs).map(([qi,st])=>({q:H.questions[qi].q, a:H.questions[qi].a[0], r:st.r, w:st.w, t:st.r+st.w, acc:Math.round(st.r/(st.r+st.w)*100)}))
     .sort((a,b)=>a.acc-b.acc || b.t-a.t);
   $('qTable').innerHTML = `<tr><th>Klausimas</th><th>Teisingas atsakymas</th><th>Atsakyta</th><th>Teisingai</th><th></th></tr>` +
     (qrows.map(r=>`<tr class="${r.acc<50?'weak':''}"><td>${esc(r.q)}</td><td>${esc(r.a)}</td><td class="n">${r.t}</td><td class="n"><span class="acc ${r.acc<50?'red':'gold'}">${r.acc}%</span></td><td><div class="qbar"><div style="width:${r.acc}%"></div></div></td></tr>`).join('')
@@ -653,7 +772,7 @@ $('rCsv').onclick = ()=>{
   const lines=[head.map(q).join(';')].concat(REPORT.map(r=>[r.place,r.name,r.coins,r.right,r.wrong,r.total?r.acc:'',r.hacks,r.tries,r.stolen,r.lost,r.missed.join(' | ')].map(q).join(';')));
   lines.push('');
   lines.push(['Klausimas','Teisingas atsakymas','Atsakyta','Teisingai %'].map(q).join(';'));
-  Object.entries(H.qs).forEach(([qi,st])=>lines.push([QUESTIONS[qi].q,QUESTIONS[qi].a[0],st.r+st.w,Math.round(st.r/(st.r+st.w)*100)].map(q).join(';')));
+  Object.entries(H.qs).forEach(([qi,st])=>lines.push([H.questions[qi].q,H.questions[qi].a[0],st.r+st.w,Math.round(st.r/(st.r+st.w)*100)].map(q).join(';')));
   const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   const d=H.startedAt||new Date();
@@ -673,7 +792,7 @@ $('eAgain').onclick = ()=>{
 /* =====================================================================
    MOKINYS (CLIENT)
    ===================================================================== */
-const C = { guessT:null, lastMsg:0, outbox:[], awaitHack:null, awaitRes:null, hackT:null, peer:null, conn:null, code:null, me:null, token:null, pw:null, av:null, name:null, list:[], coins:0, shield:false,
+const C = { questions:null, guessT:null, lastMsg:0, outbox:[], awaitHack:null, awaitRes:null, hackT:null, peer:null, conn:null, code:null, me:null, token:null, pw:null, av:null, name:null, list:[], coins:0, shield:false,
             left:0, phase:'lobby', deck:[], qi:0, right:0, double:false, busy:false, retry:0, kicked:false, screen:null };
 
 function initJoin(){
@@ -771,6 +890,7 @@ function clientHandle(d){
   C.lastMsg = Date.now();
   switch(d.t){
     case 'welcome':
+      if(d.questions) C.questions = cleanQuestions(d.questions);
       if(C.me && C.retry>0) toast('✔ Ryšys atkurtas!', true);
       C.retry=0; setNet(true);
       C.me=d.id; C.token=d.token; C.name=d.name; C.av=d.av; C.pw=d.pw; C.coins=d.coins; C.left=d.left;
@@ -790,7 +910,7 @@ function clientHandle(d){
       if(d.phase==='game' && C.screen!=='play') enterPlay();
       if(C.screen==='wait') $('wCount').textContent=`Prisijungę žaidėjai: ${d.list.length}`;
       renderClient(); break;
-    case 'start': enterPlay(); break;
+    case 'start': if(d.questions) C.questions = cleanQuestions(d.questions); enterPlay(); break;
     case 'lobby': C.phase='lobby'; C.screen='wait'; show('wait'); break;
     case 'feed': addLog($('pLog'), d.text, d.cls); break;
     case 'hacked':
@@ -809,7 +929,7 @@ function clientHandle(d){
 
 function enterPlay(){
   C.phase='game'; C.screen='play'; show('play');
-  $('pLog').innerHTML=''; C.deck=shuffle(QUESTIONS); C.qi=0; C.right=0; C.double=false; C.busy=false;
+  $('pLog').innerHTML=''; C.deck=shuffle(myQs()); C.qi=0; C.right=0; C.double=false; C.busy=false;
   renderClient(); nextQuestion();
 }
 
@@ -826,7 +946,7 @@ function flash(){ const m=$('main'); m.classList.remove('glitch'); void m.offset
 function nextQuestion(){
   if(C.phase!=='game') return;
   C.busy=false;
-  if(C.qi>=C.deck.length){ C.deck=shuffle(QUESTIONS); C.qi=0; }
+  if(C.qi>=C.deck.length){ C.deck=shuffle(myQs()); C.qi=0; }
   const q=C.deck[C.qi++];
   const opts=shuffle(q.a.map((t,i)=>({t,ok:i===0})));
   const main=$('main');
@@ -842,11 +962,11 @@ function answer(btn,o,opts,q){
   if(C.phase!=='game') return;
   const btns=[...$('main').querySelectorAll('.opt')];
   btns.forEach((b,i)=>{ b.disabled=true; if(opts[i].ok) b.classList.add('right'); });
-  cSend({t:'answer', ok:o.ok, q:QUESTIONS.indexOf(q)});
+  cSend({t:'answer', ok:o.ok, q:myQs().indexOf(q)});
   if(o.ok){ C.right++; setTimeout(showChests,550); return; }
   btn.classList.add('wrong');
   const main=$('main');
-  const d=document.createElement('div'); d.className='exp'; d.textContent='💡 '+q.e; main.appendChild(d);
+  const d=document.createElement('div'); d.className='exp'; d.textContent = q.e ? '💡 '+q.e : '✔ Teisingas atsakymas: '+q.a[0]; main.appendChild(d);
   const l=document.createElement('div'); l.className='center'; l.style.marginTop='18px';
   l.innerHTML=`<div class="lock glitch">ACCESS DENIED</div><div class="muted">Sistema perkraunama...</div><div class="bar"><div></div></div>`;
   main.appendChild(l);
@@ -976,6 +1096,324 @@ function renderEnd(ranking, place, stats){
     $('rest').innerHTML = boardHTML(ranking.slice(3), null).replace(/<span class="p">(\d+)\./g,(m,n)=>`<span class="p">${+n+3}.`);
   }
 }
+
+/* ===================== KLAUSIMŲ RINKINIAI ===================== */
+const BUILTIN = { id:null, builtin:true, title:'🎄 Kalėdų viktorina', questions:QUESTIONS };
+function cleanQuestions(list){
+  if(!Array.isArray(list)) return [];
+  return list.slice(0,200).map(x=>{
+    const q=String(x&&x.q||'').trim().slice(0,300);
+    const a=(Array.isArray(x&&x.a)?x.a:[]).map(v=>String(v??'').trim().slice(0,150)).filter(Boolean).slice(0,4);
+    const e=String(x&&x.e||'').trim().slice(0,400);
+    return {q,a,e};
+  }).filter(x=>x.q && x.a.length>=2 && new Set(x.a).size===x.a.length);
+}
+function kl(n){ const t=n%10, h=n%100; return n+' '+((t===1&&h!==11)?'klausimas':(t>=2&&t<=9&&!(h>=12&&h<=19))?'klausimai':'klausimų'); }
+function myQs(){ return (C.questions && C.questions.length) ? C.questions : QUESTIONS; }
+
+/* ===================== FIREBASE: MOKYTOJAI ===================== */
+/* Įklijuokite savo Firebase projekto nustatymus vietoj null (Project settings → Your apps → firebaseConfig). */
+const FIREBASE_CONFIG = null;
+const FB_VER = "10.12.2";
+const DB = window.__TestDB || (FIREBASE_CONFIG ? makeFirebaseDB(FIREBASE_CONFIG) : null);
+
+function makeFirebaseDB(cfg){
+  let m=null, auth=null, fs=null, user=null, teacher=null, booted=false;
+  const listeners=[];
+  const base=`https://www.gstatic.com/firebasejs/${FB_VER}/`;
+  async function checkTeacher(){
+    teacher=null;
+    if(user && user.emailVerified && user.email){
+      try{ const d=await m.getDoc(m.doc(fs,'mokytojai',user.email.toLowerCase())); teacher=d.exists()?d.data():null; }
+      catch(e){ console.warn('teacher check', e.code||e); teacher=null; }
+    }
+  }
+  const emit=()=>{ booted=true; listeners.forEach(f=>f(api.state())); };
+  const ready=(async()=>{
+    const [A,U,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
+    m={...A,...U,...F};
+    const app=m.initializeApp(cfg); auth=m.getAuth(app); fs=m.getFirestore(app);
+    auth.languageCode='lt';
+    await new Promise(res=>{ m.onAuthStateChanged(auth, async u=>{ user=u; await checkTeacher(); emit(); res(); }); });
+  })();
+  const me=()=>{ if(!user) throw {code:'auth/not-signed-in'}; return user; };
+  const api={
+    ready,
+    booted:()=>booted,
+    state(){ return { user: user?{uid:user.uid,email:user.email,name:user.displayName||(user.email||'').split('@')[0],verified:!!user.emailVerified}:null,
+                      teacher:!!teacher, admin:!!(teacher&&teacher.admin===true) }; },
+    onChange(f){ listeners.push(f); },
+    async google(){ await ready; await m.signInWithPopup(auth, new m.GoogleAuthProvider()); },
+    async emailIn(e,p){ await ready; await m.signInWithEmailAndPassword(auth,e,p); },
+    async emailUp(e,p){ await ready; const c=await m.createUserWithEmailAndPassword(auth,e,p); await m.sendEmailVerification(c.user); },
+    async resendVerify(){ await ready; if(auth.currentUser) await m.sendEmailVerification(auth.currentUser); },
+    async refresh(){ await ready; if(!auth.currentUser) return; await auth.currentUser.reload(); await auth.currentUser.getIdToken(true); user=auth.currentUser; await checkTeacher(); emit(); },
+    async reset(e){ await ready; await m.sendPasswordResetEmail(auth,e); },
+    async signOut(){ await ready; await m.signOut(auth); },
+    async listSets(){ await ready; const u=me(); const col=m.collection(fs,'rinkiniai');
+      const [a,b]=await Promise.all([ m.getDocs(m.query(col, m.where('ownerUid','==',u.uid))), m.getDocs(m.query(col, m.where('shared','==',true))) ]);
+      const conv=d=>{ const x=d.data(); return {id:d.id, title:x.title, shared:!!x.shared, questions:x.questions||[], ownerUid:x.ownerUid, ownerName:x.ownerName||'', updated:x.updatedAt&&x.updatedAt.toDate?x.updatedAt.toDate():null}; };
+      return { mine:a.docs.map(conv), shared:b.docs.map(conv).filter(s=>s.ownerUid!==u.uid) }; },
+    async saveSet(set){ await ready; const u=me();
+      const data={ title:set.title, shared:!!set.shared, questions:set.questions, ownerUid:u.uid, ownerName:u.displayName||(u.email||'').split('@')[0], updatedAt:m.serverTimestamp() };
+      if(set.id){ await m.setDoc(m.doc(fs,'rinkiniai',set.id), data); return set.id; }
+      const r=await m.addDoc(m.collection(fs,'rinkiniai'), data); return r.id; },
+    async deleteSet(id){ await ready; await m.deleteDoc(m.doc(fs,'rinkiniai',id)); },
+    async listTeachers(){ await ready; const s=await m.getDocs(m.collection(fs,'mokytojai')); return s.docs.map(d=>({email:d.id, admin:d.data().admin===true})); },
+    async addTeacher(email,admin){ await ready; await m.setDoc(m.doc(fs,'mokytojai',email), {admin:!!admin}); },
+    async removeTeacher(email){ await ready; await m.deleteDoc(m.doc(fs,'mokytojai',email)); }
+  };
+  ready.catch(e=>{ console.error('Firebase', e); });
+  return api;
+}
+
+function fbErr(e){
+  const c=(e&&(e.code||e.message))||String(e);
+  const map={
+    'auth/invalid-credential':'Neteisingas el. paštas arba slaptažodis.','auth/wrong-password':'Neteisingas slaptažodis.','auth/user-not-found':'Tokios paskyros nėra.',
+    'auth/invalid-email':'Neteisingas el. pašto adresas.','auth/email-already-in-use':'Su šiuo el. paštu paskyra jau yra – prisijunkite.',
+    'auth/weak-password':'Slaptažodis per trumpas – bent 6 simboliai.','auth/too-many-requests':'Per daug bandymų. Palaukite kelias minutes.',
+    'auth/popup-blocked':'Naršyklė užblokavo prisijungimo langą – leiskite iššokančius langus.','auth/unauthorized-domain':'Šis adresas neleidžiamas. Firebase → Authentication → Settings → Authorized domains pridėkite jokubas098.github.io',
+    'auth/network-request-failed':'Nėra interneto ryšio.','permission-denied':'Neturite teisių šiam veiksmui.','unavailable':'Firebase šiuo metu nepasiekiamas. Bandykite vėliau.',
+    'resource-exhausted':'Išnaudotas šiandienos nemokamas limitas. Jis atsinaujins 10:00 Lietuvos laiku.'
+  };
+  for(const k in map) if(c.includes(k)) return map[k];
+  return 'Klaida: '+c;
+}
+
+/* ---------- prisijungimo ekranas ---------- */
+let TCH_INIT=false;
+function openTeacher(){
+  show('tLogin');
+  if(!TCH_INIT){ TCH_INIT=true; DB.onChange(onAuthState); }
+  if(!DB.booted()){ $('tlBody').innerHTML='<p style="margin-top:22px"><span class="spinner"></span>Jungiamasi prie Firebase...</p>';
+    DB.ready.catch(e=>{ $('tlBody').innerHTML=`<div class="note red">Nepavyko prisijungti prie Firebase: ${esc(fbErr(e))}</div>`; }); }
+  else onAuthState(DB.state());
+}
+const TSCREENS=['tLogin','tDash','tEdit','tAdmin'];
+function curScreen(){ return SCREENS.find(id=>!$(id).classList.contains('hidden')); }
+function onAuthState(st){
+  const cur=curScreen();
+  if(!TSCREENS.includes(cur)) return;
+  if(!st.user){ if(cur!=='tLogin') show('tLogin'); return renderLoginForm(); }
+  if(!st.user.verified){ show('tLogin'); return renderVerify(st); }
+  if(!st.teacher){ show('tLogin'); return renderNotTeacher(st); }
+  if(cur==='tLogin') openDash();
+}
+function renderLoginForm(){
+  $('tlBody').innerHTML=`
+    <p class="muted" style="font-size:.9rem">Prisijunkite, kad galėtumėte kurti žaidimus ir savo klausimų rinkinius.</p>
+    <button class="tbtn-g" id="tlG" style="margin-top:16px"><svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Prisijungti su Google</button>
+    <div class="or">arba el. paštu</div>
+    <input id="tlEmail" type="email" placeholder="el. paštas" autocomplete="username" style="margin-top:8px">
+    <input id="tlPass" type="password" placeholder="slaptažodis" autocomplete="current-password" style="margin-top:8px">
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+      <button class="btn sm" id="tlIn">Prisijungti</button><button class="btn sm cy" id="tlUp">Sukurti paskyrą</button>
+    </div>
+    <button class="linkbtn" id="tlReset" style="margin-top:8px">Pamiršau slaptažodį</button>
+    <div class="err" id="tlErr"></div>`;
+  const busy=async(fn)=>{ $('tlErr').textContent=''; try{ await fn(); }catch(e){ if(!String(e.code||'').includes('popup-closed')) $('tlErr').textContent=fbErr(e); } };
+  const ep=()=>[$('tlEmail').value.trim(), $('tlPass').value];
+  $('tlG').onclick=()=>busy(()=>DB.google());
+  $('tlIn').onclick=()=>busy(()=>{ const [e,p]=ep(); return DB.emailIn(e,p); });
+  $('tlPass').onkeydown=ev=>{ if(ev.key==='Enter') $('tlIn').click(); };
+  $('tlUp').onclick=()=>busy(()=>{ const [e,p]=ep(); return DB.emailUp(e,p); });
+  $('tlReset').onclick=()=>busy(async()=>{ const e=$('tlEmail').value.trim(); if(!e) throw {code:'auth/invalid-email'}; await DB.reset(e); $('tlErr').innerHTML='<span class="cyan">Slaptažodžio keitimo nuoroda išsiųsta į el. paštą.</span>'; });
+}
+function renderVerify(st){
+  $('tlBody').innerHTML=`<div class="note">📧 Išsiuntėme patvirtinimo laišką į <b class="gold"></b>. Paspauskite nuorodą laiške (patikrinkite ir „Spam“ aplanką), tada spauskite mygtuką žemiau.</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+      <button class="btn sm" id="tvDone">✔ Patvirtinau</button><button class="btn sm cy" id="tvAgain">Siųsti dar kartą</button><button class="btn sm red" id="tvOut">Atsijungti</button></div>
+    <div class="err" id="tlErr"></div>`;
+  $('tlBody').querySelector('b').textContent=st.user.email;
+  $('tvDone').onclick=async()=>{ try{ await DB.refresh(); if(!DB.state().user.verified) $('tlErr').textContent='El. paštas dar nepatvirtintas.'; }catch(e){ $('tlErr').textContent=fbErr(e); } };
+  $('tvAgain').onclick=async()=>{ try{ await DB.resendVerify(); $('tlErr').innerHTML='<span class="cyan">Laiškas išsiųstas dar kartą.</span>'; }catch(e){ $('tlErr').textContent=fbErr(e); } };
+  $('tvOut').onclick=()=>DB.signOut();
+}
+function renderNotTeacher(st){
+  $('tlBody').innerHTML=`<div class="note">🔒 Paskyra <b class="gold"></b> dar neįtraukta į mokytojų sąrašą.<br><br>Paprašykite administratoriaus pridėti šį el. paštą, tada spauskite „Tikrinti dar kartą“.</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+      <button class="btn sm" id="tnAgain">↻ Tikrinti dar kartą</button><button class="btn sm red" id="tnOut">Atsijungti</button></div><div class="err" id="tlErr"></div>`;
+  $('tlBody').querySelector('b').textContent=st.user.email;
+  $('tnAgain').onclick=async()=>{ try{ await DB.refresh(); }catch(e){ $('tlErr').textContent=fbErr(e); } };
+  $('tnOut').onclick=()=>DB.signOut();
+}
+$('tlBack').onclick=()=>show('home');
+
+/* ---------- skydelis ---------- */
+let SETS={mine:[],shared:[]};
+async function openDash(msg){
+  show('tDash');
+  const st=DB.state();
+  $('tdWho').textContent=`${st.user.name} · ${st.user.email}`+(st.admin?' · administratorius':'');
+  $('tdAdmin').classList.toggle('hidden', !st.admin);
+  $('tdMsg').textContent = msg||'';
+  $('tdMine').innerHTML='<div class="muted"><span class="spinner"></span>Kraunama...</div>'; $('tdShared').innerHTML='';
+  try{ SETS=await DB.listSets(); }catch(e){ $('tdMine').innerHTML=`<div class="red">${esc(fbErr(e))}</div>`; return; }
+  SETS.mine.sort((a,b)=>(b.updated||0)-(a.updated||0));
+  renderSets();
+}
+function setCard(s, kind){
+  const el=document.createElement('div'); el.className='set';
+  const n=(s.questions||[]).length;
+  const meta = kind==='builtin' ? 'Įmontuotas rinkinys' : kind==='shared' ? `Bendrina: ${s.ownerName||'mokytojas'}` : (s.updated?`Atnaujinta ${s.updated.toLocaleDateString('lt-LT')}`:'');
+  el.innerHTML=`<div class="tt"></div><div class="meta">${kl(n)} · ${esc(meta)}${s.shared&&kind==='mine'?'<span class="badge">bendrinamas</span>':''}</div><div class="acts"></div>`;
+  el.querySelector('.tt').textContent=s.title;
+  const acts=el.querySelector('.acts');
+  const b=(label,cls,fn,title)=>{ const x=document.createElement('button'); x.textContent=label; if(cls) x.className=cls; if(title) x.title=title; x.onclick=fn; acts.appendChild(x); return x; };
+  b('▶ Žaisti','play',()=>{ if(noPeer()) return; if(cleanQuestions(s.questions).length<1){ $('tdMsg').textContent='Šiame rinkinyje nėra tinkamų klausimų.'; return; } startHost(s); });
+  if(kind==='mine') b('✏ Redaguoti','',()=>openEditor(s));
+  b('⧉ Kopija','',()=>openEditor({id:null,title:s.title+' (kopija)',shared:false,questions:JSON.parse(JSON.stringify(s.questions))}),'Sukurti savo kopiją ir redaguoti');
+  b('⬇','',()=>downloadSet(s),'Atsisiųsti atsarginę kopiją');
+  if(kind==='mine'){
+    const del=b('🗑','del',async()=>{
+      if(!del.classList.contains('sure')){ del.classList.add('sure'); del.textContent='Tikrai ištrinti?'; setTimeout(()=>{ del.classList.remove('sure'); del.textContent='🗑'; },3500); return; }
+      try{ await DB.deleteSet(s.id); openDash('🗑 Rinkinys ištrintas.'); }catch(e){ $('tdMsg').textContent=fbErr(e); }
+    },'Ištrinti');
+  }
+  return el;
+}
+function renderSets(){
+  const mine=$('tdMine'); mine.innerHTML='';
+  mine.appendChild(setCard(BUILTIN,'builtin'));
+  SETS.mine.forEach(s=>mine.appendChild(setCard(s,'mine')));
+  const sh=$('tdShared'); sh.innerHTML='';
+  if(!SETS.shared.length) sh.innerHTML='<div class="muted" style="font-size:.85rem">Kol kas niekas nebendrina rinkinių.</div>';
+  SETS.shared.forEach(s=>sh.appendChild(setCard(s,'shared')));
+}
+function downloadSet(s){
+  const blob=new Blob([JSON.stringify({title:s.title, questions:s.questions},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=(s.title||'rinkinys').replace(/[^\p{L}\p{N}]+/gu,'_').slice(0,50)+'.json';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+$('tdFile').onchange=async ev=>{
+  const f=ev.target.files[0]; ev.target.value=''; if(!f) return;
+  try{ const j=JSON.parse(await f.text()); const qs=cleanQuestions(j.questions);
+    if(!qs.length) throw new Error('Faile nerasta klausimų.');
+    openEditor({id:null, title:String(j.title||'Įkeltas rinkinys').slice(0,80), shared:false, questions:qs});
+  }catch(e){ $('tdMsg').textContent='Nepavyko įkelti: '+(e.message||e); }
+};
+$('tdNew').onclick=()=>openEditor({id:null,title:'',shared:false,questions:[]});
+$('tdOut').onclick=async()=>{ await DB.signOut(); show('tLogin'); renderLoginForm(); };
+$('tdAdmin').onclick=()=>openAdmin();
+
+/* ---------- redaktorius ---------- */
+let ED=null;
+function blankQ(){ return {q:'',a:['','','',''],e:''}; }
+function openEditor(set){
+  ED={ id:set.id||null, title:set.title||'', shared:!!set.shared,
+       questions:(set.questions||[]).map(x=>({q:x.q||'', a:[0,1,2,3].map(i=>(x.a||[])[i]||''), e:x.e||''})) };
+  if(!ED.questions.length) ED.questions.push(blankQ());
+  $('edTitle').value=ED.title; $('edShared').checked=ED.shared; $('edErr').textContent='';
+  $('edPasteArea').classList.add('hidden'); $('edPasteToggle').textContent='Atidaryti'; $('edPaste').value=''; $('edPasteMsg').textContent='';
+  show('tEdit'); renderEditor();
+}
+function renderEditor(){
+  const list=$('edList'); list.innerHTML='';
+  ED.questions.forEach((x,i)=>{
+    const c=document.createElement('div'); c.className='panel qcard'; c.dataset.i=i;
+    c.innerHTML=`<div class="qtools"><button title="Aukštyn" data-a="up">↑</button><button title="Žemyn" data-a="down">↓</button><button title="Ištrinti" class="x" data-a="del">✕</button></div>
+      <div><span class="qn">${i+1}.</span><span class="flab">KLAUSIMAS</span></div>
+      <textarea rows="2" maxlength="300" data-f="q" placeholder="Įrašykite klausimą"></textarea>
+      <div class="flab">ATSAKYMAI · <span class="cyan">pirmas – teisingas</span>, kiti – neteisingi (užtenka bent vieno)</div>
+      <div class="ansgrid">
+        <input class="ok" maxlength="150" data-f="a0" placeholder="✔ Teisingas atsakymas">
+        <input maxlength="150" data-f="a1" placeholder="✗ Neteisingas 1">
+        <input maxlength="150" data-f="a2" placeholder="✗ Neteisingas 2 (nebūtinas)">
+        <input maxlength="150" data-f="a3" placeholder="✗ Neteisingas 3 (nebūtinas)">
+      </div>
+      <input maxlength="400" data-f="e" placeholder="💡 Paaiškinimas, rodomas suklydus (nebūtinas)" style="margin-top:8px">
+      <div class="ederr"></div>`;
+    c.querySelector('[data-f=q]').value=x.q;
+    [0,1,2,3].forEach(k=>c.querySelector(`[data-f=a${k}]`).value=x.a[k]);
+    c.querySelector('[data-f=e]').value=x.e;
+    c.querySelectorAll('[data-f]').forEach(inp=>inp.oninput=()=>{
+      const f=inp.dataset.f; if(f==='q') x.q=inp.value; else if(f==='e') x.e=inp.value; else x.a[+f.slice(1)]=inp.value;
+      c.classList.remove('bad'); c.querySelector('.ederr').textContent='';
+    });
+    c.querySelectorAll('.qtools button').forEach(bt=>bt.onclick=()=>{
+      const a=bt.dataset.a, Q=ED.questions;
+      if(a==='del'){ Q.splice(i,1); if(!Q.length) Q.push(blankQ()); $('edErr').textContent=''; }
+      if(a==='up' && i>0) [Q[i-1],Q[i]]=[Q[i],Q[i-1]];
+      if(a==='down' && i<Q.length-1) [Q[i+1],Q[i]]=[Q[i],Q[i+1]];
+      renderEditor();
+    });
+    list.appendChild(c);
+  });
+}
+$('edAdd').onclick=()=>{ if(ED.questions.length>=200){ $('edErr').textContent='Daugiausia 200 klausimų.'; return; } ED.questions.push(blankQ()); renderEditor();
+  const last=$('edList').lastElementChild; last.scrollIntoView({behavior:'smooth',block:'center'}); last.querySelector('textarea').focus(); };
+$('edTitle').oninput=()=>{ ED.title=$('edTitle').value; };
+$('edShared').onchange=()=>{ ED.shared=$('edShared').checked; };
+$('edCancel').onclick=()=>openDash();
+$('edPasteToggle').onclick=()=>{ const a=$('edPasteArea'); a.classList.toggle('hidden'); $('edPasteToggle').textContent=a.classList.contains('hidden')?'Atidaryti':'Uždaryti'; };
+$('edPasteGo').onclick=()=>{
+  const rows=$('edPaste').value.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  let added=0, bad=0;
+  rows.forEach((line,idx)=>{
+    const cells=(line.includes('\t')?line.split('\t'):line.split(';')).map(c=>c.trim().replace(/^"(.*)"$/,'$1'));
+    if(idx===0 && /^klausimas$/i.test(cells[0])) return;
+    const [q,ok,w1,w2,w3,e]=cells;
+    if(!q || !ok || !(w1||w2||w3)){ bad++; return; }
+    if(ED.questions.length>=200){ bad++; return; }
+    const empty=ED.questions.length===1 && !ED.questions[0].q && !ED.questions[0].a.some(Boolean);
+    if(empty) ED.questions=[];
+    ED.questions.push({q, a:[ok,w1||'',w2||'',w3||''], e:e||''}); added++;
+  });
+  $('edPasteMsg').textContent=`Pridėta: ${added}`+(bad?` · praleista eilučių: ${bad} (trūko klausimo, teisingo ar bent vieno neteisingo atsakymo)`:'');
+  if(added){ $('edPaste').value=''; renderEditor(); }
+};
+$('edSave').onclick=async()=>{
+  $('edErr').textContent='';
+  const title=$('edTitle').value.trim();
+  if(!title){ $('edErr').textContent='Įrašykite rinkinio pavadinimą.'; $('edTitle').focus(); return; }
+  let firstBad=null; const out=[];
+  ED.questions.forEach((x,i)=>{
+    const card=$('edList').children[i];
+    const q=x.q.trim(), a=x.a.map(v=>v.trim()), wrong=a.slice(1).filter(Boolean);
+    const blank = !q && !a.some(Boolean) && !x.e.trim();
+    if(blank) return;
+    let err='';
+    if(!q) err='Trūksta klausimo.'; else if(!a[0]) err='Trūksta teisingo atsakymo.'; else if(!wrong.length) err='Reikia bent vieno neteisingo atsakymo.';
+    else if(new Set([a[0],...wrong]).size!==wrong.length+1) err='Atsakymai neturi kartotis.';
+    if(err){ card.classList.add('bad'); card.querySelector('.ederr').textContent=err; if(!firstBad) firstBad=card; }
+    else out.push({q, a:[a[0],...wrong], e:x.e.trim()});
+  });
+  if(firstBad){ $('edErr').textContent='Pataisykite raudonai pažymėtus klausimus.'; firstBad.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(!out.length){ $('edErr').textContent='Pridėkite bent vieną klausimą.'; return; }
+  $('edSave').disabled=true; $('edSave').textContent='Saugoma...';
+  try{ await DB.saveSet({id:ED.id, title, shared:$('edShared').checked, questions:out}); openDash(`💾 Išsaugota: „${title}“ (${kl(out.length)})`); }
+  catch(e){ $('edErr').textContent=fbErr(e); }
+  finally{ $('edSave').disabled=false; $('edSave').textContent='💾 Išsaugoti'; }
+};
+
+/* ---------- administratorius ---------- */
+async function openAdmin(){
+  show('tAdmin'); $('taErr').textContent=''; $('taList').innerHTML='<div class="muted"><span class="spinner"></span>Kraunama...</div>';
+  let list=[]; try{ list=await DB.listTeachers(); }catch(e){ $('taList').innerHTML=`<div class="red">${esc(fbErr(e))}</div>`; return; }
+  const me=(DB.state().user.email||'').toLowerCase();
+  list.sort((a,b)=>a.email.localeCompare(b.email));
+  $('taList').innerHTML='';
+  list.forEach(t=>{
+    const r=document.createElement('div'); r.className='trow';
+    r.innerHTML=`<span><span class="em"></span>${t.admin?'<span class="badge">admin</span>':''}</span>`;
+    r.querySelector('.em').textContent=t.email;
+    if(t.email!==me){ const x=document.createElement('button'); x.className='btn sm red'; x.textContent='Pašalinti';
+      x.onclick=async()=>{ if(x.dataset.sure!=='1'){ x.dataset.sure='1'; x.textContent='Tikrai?'; setTimeout(()=>{x.dataset.sure='';x.textContent='Pašalinti';},3500); return; }
+        try{ await DB.removeTeacher(t.email); openAdmin(); }catch(e){ $('taErr').textContent=fbErr(e); } };
+      r.appendChild(x); }
+    else { const s=document.createElement('span'); s.className='muted'; s.style.fontSize='.8rem'; s.textContent='(jūs)'; r.appendChild(s); }
+    $('taList').appendChild(r);
+  });
+}
+$('taAdd').onclick=async()=>{
+  const e=$('taEmail').value.trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)){ $('taErr').textContent='Įrašykite teisingą el. pašto adresą.'; return; }
+  try{ await DB.addTeacher(e, $('taIsAdmin').checked); $('taEmail').value=''; $('taIsAdmin').checked=false; openAdmin(); }
+  catch(err){ $('taErr').textContent=fbErr(err); }
+};
+$('taBack').onclick=()=>openDash();
 
 /* ===================== MATRIX SNIEGAS ===================== */
 const cv=$('rain'), cx=cv.getContext('2d'); let cols=[], fs=18;

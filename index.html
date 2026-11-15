@@ -48,10 +48,11 @@ input.code{font-family:'Orbitron';font-size:2rem;text-align:center;letter-spacin
 .home-btns .ic{font-size:2.4rem;display:block}
 
 /* HOST LOBBY */
-.lobby{display:grid;grid-template-columns:380px 1fr;gap:16px;flex:1}
+.lobby{display:grid;grid-template-columns:420px 1fr;gap:16px;flex:1}
 @media(max-width:900px){.lobby{grid-template-columns:1fr}}
 .codebox{padding:26px;text-align:center}
-.bigcode{font-family:'Orbitron';font-size:clamp(3rem,8vw,5.2rem);font-weight:900;color:var(--gold);letter-spacing:8px;text-shadow:0 0 20px rgba(255,216,77,.6);margin:8px 0}
+.codebox{container-type:inline-size}
+.bigcode{font-family:'Orbitron';font-size:min(5.2rem,20cqw);font-weight:900;color:var(--gold);letter-spacing:.06em;text-shadow:0 0 20px rgba(255,216,77,.6);margin:8px 0;white-space:nowrap;line-height:1.1}
 .url{word-break:break-all;color:var(--c);font-size:.95rem;background:#00140a;border:1px dashed var(--g2);padding:10px;border-radius:6px;margin:8px 0 14px}
 .plist{padding:20px;display:flex;flex-direction:column}
 .chips{display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start;margin-top:10px}

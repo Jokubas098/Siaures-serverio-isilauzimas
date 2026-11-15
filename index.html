@@ -589,6 +589,7 @@ const RULES_HTML = `<div class="rules"><h3>// TAISYKLĖS</h3><ol>
   <li><b>Atsakyk į klausimą.</b> Teisingai – gausi prieigą prie serverio. Klaidingai – sistema užsirakins 4 sekundėms ir parodys paaiškinimą.</li>
   <li><b>Pasirink vieną iš 3 serverio dėžių.</b> Kas jose gali būti:
     <div class="loot"><span>₿ <b>KriptoCoin</b> – taškai</span><span>⚡ <b>x2</b> – kitas lobis dvigubas</span>
+    <span>💎 <b>x2 / x3</b> – padaugina VISUS tavo taškus (retas!)</span>
     <span>🛡️ <b>Ugniasienė</b> – apsaugo nuo 1 įsilaužimo</span><span>🔓 <b>Įsilaužimas</b> – vogk iš draugo</span>
     <span>🦠 <b>Virusas</b> – prarandi 15 %</span><span>💾 <b>Tuščias failas</b> – nieko</span></div></li>
   <li><b>Įsilaužimas:</b> pasirink draugą ir per <b>8 sekundes</b> atspėk jo slaptažodį iš 4 variantų. Variantai labai panašūs – žiūrėk atidžiai (0 ir O, 1 ir l, 3 ir e)! Pavyks – pavogsi <b>10–30 %</b> jo KriptoCoin.</li>
@@ -667,15 +668,22 @@ function hostHandle(conn, d){
   if(H.phase!=='game') return;
   switch(d.t){
     case 'answer': {
-      d.ok ? p.right++ : p.wrong++;
+      if(d.ok){ p.right++; p.chests=(p.chests||0)+1; } else p.wrong++;
       const qi = Number.isInteger(d.q) && d.q>=0 && d.q<H.questions.length ? d.q : -1;
       if(qi>=0){ const st=(H.qs[qi] ||= {r:0,w:0}); d.ok?st.r++:st.w++; if(!d.ok) p.missed[qi]=(p.missed[qi]||0)+1; }
       break; }
     case 'gain': {
+      if(!(p.chests>0)) break; p.chests--;
       const amt = Math.max(0, Math.min(5000, Math.floor(+d.amt||0)));
       p.coins += amt; hostState(); break; }
     case 'virus': { const amt=Math.floor(p.coins*0.15); p.coins-=amt; p.lost+=amt; hSend(p,{t:'virus',amt}); hostState(); break; }
     case 'shield': p.shield = true; hostState(); break;
+    case 'mult': {
+      const k = d.k===3 ? 3 : 2; const now=Date.now();
+      if(!(p.chests>0) || (p.lastMult && now-p.lastMult<1500)) break;
+      p.chests--; p.lastMult=now; const before=p.coins; p.coins = before*k;
+      if(before>0) hostFeed(`💎 ${p.av} ${p.name} ${k===3?'patrigubino':'padvigubino'} savo taškus: ₿ ${fmt(before)} → ₿ ${fmt(p.coins)}!`, 'good');
+      hostState(); break; }
     case 'hackReq': {
       const tg = H.players.get(d.target);
       if(!tg || tg===p || tg.kicked){ hSend(p,{t:'hackFail',why:'Taikinys nerastas'}); break; }
@@ -760,7 +768,7 @@ function renderLobby(){
 $('hStart').onclick = ()=>{
   if(![...H.players.values()].some(p=>!p.kicked)){ toast("Palaukite, kol prisijungs bent vienas žaidėjas.", false); return; }
   H.phase='game'; H.left=H.duration; $('hLog').innerHTML='';
-  H.players.forEach(p=>{ p.coins=0; p.shield=false; p.right=p.wrong=p.hacks=p.hackTries=p.stolen=p.lost=0; p.missed={}; });
+  H.players.forEach(p=>{ p.coins=0; p.shield=false; p.right=p.wrong=p.hacks=p.hackTries=p.stolen=p.lost=0; p.chests=0; p.missed={}; });
   H.qs={}; H.startedAt=new Date();
   show('hGame'); hostFeed('▶ Žaidimas prasidėjo! Sėkmės, hakeriai!', 'good');
   hBroadcast({t:'start', left:H.left, questions:H.questions});
@@ -1051,6 +1059,8 @@ function rollReward(){
   if(r<0.37) return {type:'shield', ic:'🛡️', txt:'UGNIASIENĖ'};
   if(r<0.44) return {type:'virus', ic:'🦠', txt:'VIRUSAS −15%'};
   if(r<0.50) return {type:'none', ic:'💾', txt:'Tuščias failas'};
+  if(r<0.555) return {type:'mult', k:2, ic:'💎', txt:'x2 VISI TAŠKAI'};
+  if(r<0.58) return {type:'mult', k:3, ic:'💎', txt:'x3 VISI TAŠKAI'};
   return {type:'coins', ic:'₿', amt:Math.round(base*pick([1,1,1.5,2,2,3,5]))};
 }
 function showChests(){
@@ -1064,6 +1074,7 @@ function showChests(){
   const chests=[...main.querySelectorAll('.chest')];
   chests.forEach((c,i)=>c.onclick=()=>{
     const dbl=C.double;
+    c.dataset.mine='1';
     chests.forEach((x,j)=>{ x.disabled=true; reveal(x,rewards[j],dbl && j===i); if(j!==i) x.classList.add('dim'); });
     applyReward(rewards[i]);
   });
@@ -1072,7 +1083,8 @@ function reveal(el,r,dbl){
   el.classList.add(r.type==='virus'||r.type==='none'?'bad':'open');
   el.querySelector('.ic').textContent=r.ic;
   const rv=el.querySelector('.rv');
-  if(r.type==='coins' && dbl) rv.innerHTML=`+${fmt(r.amt)} <span class="x2tag">⚡×2</span><div class="x2sum">= +${fmt(r.amt*2)}</div>`;
+  if(r.type==='mult' && el.dataset.mine==='1') rv.innerHTML=`${r.txt}<div class="x2sum">${fmt(C.coins)} → ${fmt(C.coins*r.k)}</div>`;
+  else if(r.type==='coins' && dbl) rv.innerHTML=`+${fmt(r.amt)} <span class="x2tag">⚡×2</span><div class="x2sum">= +${fmt(r.amt*2)}</div>`;
   else rv.textContent = r.type==='coins' ? `+${fmt(r.amt)}` : r.txt;
 }
 function applyReward(r){
@@ -1081,6 +1093,9 @@ function applyReward(r){
     addLog($('pLog'), was2 ? `+₿ ${fmt(amt)} (⚡ x2: ${fmt(r.amt)} × 2)` : `+₿ ${fmt(amt)} iš serverio dėžės`,'good');
     if(was2) toast(`⚡ Dvigubas lobis! ${fmt(r.amt)} × 2 = +₿ ${fmt(amt)}`, true);
     renderClient(); cont(was2?2000:1300); }
+  else if(r.type==='mult'){ const before=C.coins; C.coins*=r.k; cSend({t:'mult', k:r.k});
+    toast(`💎 ${r.k===3?'TRIGUBI':'DVIGUBI'} TAŠKAI! ₿ ${fmt(before)} → ₿ ${fmt(before*r.k)}`, true);
+    addLog($('pLog'), `💎 x${r.k}: ₿ ${fmt(before)} → ₿ ${fmt(before*r.k)}`,'good'); renderClient(); cont(2000); }
   else if(r.type==='x2'){ C.double=true; addLog($('pLog'),'⚡ x2 įjungtas – kitas ₿ lobis bus dvigubas','good'); renderClient(); cont(); }
   else if(r.type==='shield'){ C.shield=true; cSend({t:'shield'}); addLog($('pLog'),'🛡️ Ugniasienė įjungta – atlaikys vieną įsilaužimą','good'); renderClient(); cont(); }
   else if(r.type==='virus'){ cSend({t:'virus'}); flash(); cont(); }

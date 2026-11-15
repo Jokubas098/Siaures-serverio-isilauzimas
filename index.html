@@ -316,7 +316,8 @@ input.ok{border-color:var(--g);border-width:2px}
   <div class="panel" style="padding:16px 18px">
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button class="btn" id="tdNew">＋ Naujas rinkinys</button>
-      <label class="btn sm cy" style="margin:0;cursor:pointer">⬆ Įkelti iš failo<input type="file" id="tdFile" accept=".json,application/json" hidden></label>
+      <label class="btn sm cy" style="margin:0;cursor:pointer" title="Excel (.xlsx, .xls), .csv, .ods arba atsarginė kopija .json">⬆ Įkelti iš Excel / failo<input type="file" id="tdFile" accept=".xlsx,.xls,.csv,.ods,.json,application/json" hidden></label>
+      <button class="btn sm" id="tdTpl" title="Tuščias Excel šablonas su pavyzdžiais">⬇ Excel šablonas</button>
       <span class="muted" id="tdMsg" style="font-size:.85rem"></span>
     </div>
     <p class="secttl" style="margin-top:18px">// MANO RINKINIAI</p>
@@ -1364,12 +1365,64 @@ function downloadSet(s){
   a.download=(s.title||'rinkinys').replace(/[^\p{L}\p{N}]+/gu,'_').slice(0,50)+'.json';
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
+/* --- Excel / CSV / JSON įkėlimas --- */
+const XLSX_URL='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+let xlsxP=null;
+function loadXLSX(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  return xlsxP ||= new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=XLSX_URL;
+    sc.onload=()=>res(window.XLSX); sc.onerror=()=>{ xlsxP=null; rej(new Error('nepavyko įkelti Excel skaitymo bibliotekos (patikrinkite internetą)')); };
+    document.head.appendChild(sc); });
+}
+/* eilutės: [Klausimas, Teisingas, Neteisingas1, Neteisingas2, Neteisingas3, Paaiškinimas] */
+function rowsToQuestions(rows){
+  const out=[]; let bad=0;
+  rows.forEach((r,idx)=>{
+    const cells=(r||[]).map(c=>String(c??'').trim());
+    if(!cells.some(Boolean)) return;
+    if(idx===0 && /^klausimas/i.test(cells[0])) return;
+    const [q,ok,w1,w2,w3,e]=cells;
+    if(!q || !ok || !(w1||w2||w3)){ bad++; return; }
+    out.push({q:q.slice(0,300), a:[ok,w1||'',w2||'',w3||''].map(x=>x.slice(0,150)), e:(e||'').slice(0,400)});
+  });
+  return {qs:out, bad};
+}
+const baseName=n=>n.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').trim().slice(0,80);
 $('tdFile').onchange=async ev=>{
   const f=ev.target.files[0]; ev.target.value=''; if(!f) return;
-  try{ const j=JSON.parse(await f.text()); const qs=cleanQuestions(j.questions);
-    if(!qs.length) throw new Error('Faile nerasta klausimų.');
-    openEditor({id:null, title:String(j.title||'Įkeltas rinkinys').slice(0,80), shared:false, questions:qs});
+  $('tdMsg').innerHTML='<span class="spinner"></span>Skaitomas failas...';
+  try{
+    const ext=(f.name.split('.').pop()||'').toLowerCase();
+    if(ext==='json'){
+      const j=JSON.parse(await f.text()); const qs=cleanQuestions(j.questions);
+      if(!qs.length) throw new Error('faile nerasta klausimų');
+      $('tdMsg').textContent='';
+      return openEditor({id:null, title:String(j.title||baseName(f.name)).slice(0,80), shared:false, questions:qs});
+    }
+    const X=await loadXLSX();
+    const wb=X.read(new Uint8Array(await f.arrayBuffer()), {type:'array'});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=X.utils.sheet_to_json(ws,{header:1, raw:false, defval:''});
+    const {qs,bad}=rowsToQuestions(rows);
+    if(!qs.length) throw new Error('nerasta tinkamų eilučių. Stulpeliai turi būti: Klausimas | Teisingas | Neteisingas 1 | Neteisingas 2 | Neteisingas 3 | Paaiškinimas');
+    $('tdMsg').textContent='';
+    openEditor({id:null, title:baseName(f.name), shared:false, questions:qs.slice(0,200)});
+    $('edErr').innerHTML=`<span class="cyan">⬆ Įkelta ${kl(Math.min(qs.length,200))} iš „${esc(f.name)}“.${bad?` Praleista eilučių: ${bad} (trūko klausimo, teisingo ar bent vieno neteisingo atsakymo).`:''}${qs.length>200?' Įkelti tik pirmi 200.':''} Peržiūrėkite ir spauskite „Išsaugoti“.</span>`;
   }catch(e){ $('tdMsg').textContent='Nepavyko įkelti: '+(e.message||e); }
+};
+$('tdTpl').onclick=async()=>{
+  try{
+    const X=await loadXLSX();
+    const ws=X.utils.aoa_to_sheet([
+      ['Klausimas','Teisingas atsakymas','Neteisingas 1','Neteisingas 2','Neteisingas 3','Paaiškinimas (nebūtinas)'],
+      ['Kiek bus 7 × 8?','56','54','64','48','7 × 8 = 56'],
+      ['Kokia Lietuvos sostinė?','Vilnius','Kaunas','Klaipėda','',''],
+      ['Ar Žemė sukasi aplink Saulę?','Taip','Ne','','','']
+    ]);
+    ws['!cols']=[{wch:45},{wch:22},{wch:18},{wch:18},{wch:18},{wch:35}];
+    const wb=X.utils.book_new(); X.utils.book_append_sheet(wb, ws, 'Klausimai');
+    X.writeFile(wb, 'klausimu_sablonas.xlsx');
+  }catch(e){ $('tdMsg').textContent='Nepavyko sukurti šablono: '+(e.message||e); }
 };
 $('tdNew').onclick=()=>openEditor({id:null,title:'',shared:false,questions:[]});
 $('tdOut').onclick=async()=>{ await DB.signOut(); show('tLogin'); renderLoginForm(); };
@@ -1426,18 +1479,11 @@ $('edShared').onchange=()=>{ ED.shared=$('edShared').checked; };
 $('edCancel').onclick=()=>openDash();
 $('edPasteToggle').onclick=()=>{ const a=$('edPasteArea'); a.classList.toggle('hidden'); $('edPasteToggle').textContent=a.classList.contains('hidden')?'Atidaryti':'Uždaryti'; };
 $('edPasteGo').onclick=()=>{
-  const rows=$('edPaste').value.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-  let added=0, bad=0;
-  rows.forEach((line,idx)=>{
-    const cells=(line.includes('\t')?line.split('\t'):line.split(';')).map(c=>c.trim().replace(/^"(.*)"$/,'$1'));
-    if(idx===0 && /^klausimas$/i.test(cells[0])) return;
-    const [q,ok,w1,w2,w3,e]=cells;
-    if(!q || !ok || !(w1||w2||w3)){ bad++; return; }
-    if(ED.questions.length>=200){ bad++; return; }
-    const empty=ED.questions.length===1 && !ED.questions[0].q && !ED.questions[0].a.some(Boolean);
-    if(empty) ED.questions=[];
-    ED.questions.push({q, a:[ok,w1||'',w2||'',w3||''], e:e||''}); added++;
-  });
+  const rows=$('edPaste').value.split(/\r?\n/).filter(l=>l.trim()).map(line=>(line.includes('\t')?line.split('\t'):line.split(';')).map(c=>c.trim().replace(/^"(.*)"$/,'$1')));
+  const res=rowsToQuestions(rows); let added=0, bad=res.bad;
+  const empty=ED.questions.length===1 && !ED.questions[0].q && !ED.questions[0].a.some(Boolean);
+  if(empty && res.qs.length) ED.questions=[];
+  res.qs.forEach(x=>{ if(ED.questions.length>=200){ bad++; return; } ED.questions.push(x); added++; });
   $('edPasteMsg').textContent=`Pridėta: ${added}`+(bad?` · praleista eilučių: ${bad} (trūko klausimo, teisingo ar bent vieno neteisingo atsakymo)`:'');
   if(added){ $('edPaste').value=''; renderEditor(); }
 };

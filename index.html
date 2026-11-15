@@ -179,6 +179,35 @@ input.ok{border-color:var(--g);border-width:2px}
 .ederr{color:var(--r);font-weight:700;font-size:.85rem;margin-top:6px}
 .pastebox{padding:16px 18px}
 .trow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--dim);color:#d7ffe8}
+/* PRISIJUNGIMO EKRANAS SU EFEKTAIS */
+.tlWrap{flex:1;display:grid;grid-template-columns:1fr minmax(300px,360px) 1fr;gap:22px;align-items:center;min-height:calc(100vh - 32px)}
+.tlWrap .tbox{max-width:360px;padding:22px 22px 18px;margin:0;justify-self:center}
+.tlWrap .tbox h1{font-size:1.25rem!important}
+.tlWrap .tbox input{font-size:.95rem;padding:9px 11px}
+.tlWrap .tbox .btn.sm{padding:8px 12px;font-size:.8rem}
+.hxSide{height:min(560px,78vh);overflow:hidden;position:relative;border:1px solid rgba(31,191,98,.35);border-radius:10px;background:rgba(0,12,6,.75);
+  box-shadow:inset 0 0 30px rgba(57,255,138,.06);font-size:.74rem;line-height:1.45;padding:12px 14px;display:flex;flex-direction:column}
+.hxSide::before,.hxSide::after{content:"";position:absolute;left:0;right:0;height:46px;z-index:2;pointer-events:none}
+.hxSide::before{top:0;background:linear-gradient(rgba(0,12,6,.95),transparent)}
+.hxSide::after{bottom:0;background:linear-gradient(transparent,rgba(0,12,6,.95))}
+.hxHead{position:relative;z-index:3;font-size:.68rem;letter-spacing:2px;color:var(--c);display:flex;justify-content:space-between;margin-bottom:6px}
+.hxHead .dot{width:8px;height:8px;border-radius:50%;background:var(--r);box-shadow:0 0 8px var(--r);display:inline-block;animation:blink 1s infinite}
+#hxTerm{flex:1;overflow:hidden;white-space:pre-wrap;word-break:break-all;color:#7fe0a8;display:flex;flex-direction:column;justify-content:flex-end}
+#hxTerm .ok{color:var(--g)} #hxTerm .warn{color:var(--gold)} #hxTerm .bad{color:var(--r)} #hxTerm .cmd{color:#e9fff2} #hxTerm .dim{color:#3b6e52}
+.hxCrack{position:relative;z-index:3;border:1px solid var(--dim);border-radius:8px;padding:10px;text-align:center;margin-bottom:10px;background:rgba(0,20,10,.8)}
+.hxCrack .lbl{font-size:.62rem;letter-spacing:2px;color:#5f9c7a}
+.hxSlots{font-family:'Orbitron',monospace;font-size:1.05rem;letter-spacing:4px;color:#5f9c7a;margin:6px 0 4px;white-space:nowrap}
+.hxSlots b{color:var(--g);text-shadow:0 0 8px var(--g)}
+.hxCrack .hxst{font-size:.68rem;font-weight:800;color:var(--gold);min-height:1.1em}
+.hxCrack.done{border-color:var(--g);box-shadow:0 0 16px rgba(57,255,138,.35)} .hxCrack.done .hxst{color:var(--g)}
+.hxBars{position:relative;z-index:3;display:grid;gap:5px;margin-bottom:10px}
+.hxBar{display:grid;grid-template-columns:62px 1fr 34px;gap:6px;align-items:center;font-size:.64rem;color:#8fe3b3}
+.hxBar .tr{height:6px;background:#062214;border-radius:9px;overflow:hidden}
+.hxBar .tr div{height:100%;background:linear-gradient(90deg,var(--g2),var(--g));transition:width .6s}
+.hxBar .tr div.hot{background:linear-gradient(90deg,var(--gold),var(--r))}
+#hxHex{flex:1;overflow:hidden;color:#2f8a57;font-size:.68rem;white-space:pre}
+#hxHex .hl{color:var(--c)}
+@media(max-width:960px){ .tlWrap{grid-template-columns:1fr} .hxSide{display:none} }
 /* TAISYKLĖS */
 .rules{text-align:left;margin-top:18px}
 .rules h3{font-family:'Orbitron';color:var(--c);font-size:1rem;letter-spacing:2px;margin:0 0 10px}
@@ -245,11 +274,24 @@ input.ok{border-color:var(--g);border-width:2px}
 </section>
 
 <!-- ================= MOKYTOJO PRISIJUNGIMAS ================= -->
-<section id="tLogin" class="tbox panel hidden">
+<section id="tLogin" class="tlWrap hidden">
+ <div class="hxSide" aria-hidden="true">
+  <div class="hxHead"><span>// root@mainframe:~</span><span><span class="dot"></span> LIVE</span></div>
+  <div id="hxTerm"></div>
+ </div>
+ <div class="tbox panel">
   <div class="tag">// MOKYTOJO PRIEIGA</div>
   <h1 class="glow orb" style="font-size:1.6rem;margin:8px 0 4px">👩‍🏫 Mokytojams</h1>
   <div id="tlBody"></div>
-  <div style="margin-top:18px"><button class="btn sm" id="tlBack">← Atgal</button></div>
+  <div style="margin-top:14px"><button class="btn sm" id="tlBack">← Atgal</button></div>
+ </div>
+ <div class="hxSide" aria-hidden="true">
+  <div class="hxHead"><span>// PASSWORD_CRACKER.exe</span><span id="hxPct">0%</span></div>
+  <div class="hxCrack" id="hxCrack"><div class="lbl">BANDOMAS SLAPTAŽODIS</div><div class="hxSlots" id="hxSlots"></div><div class="hxst" id="hxSt">SKENUOJAMA...</div></div>
+  <div class="hxBars" id="hxBars"></div>
+  <div class="hxHead"><span>// MEMORY_DUMP</span><span>0x7FF3</span></div>
+  <div id="hxHex"></div>
+ </div>
 </section>
 
 <!-- ================= MOKYTOJO SKYDELIS ================= -->
@@ -1431,6 +1473,73 @@ $('taAdd').onclick=async()=>{
   catch(err){ $('taErr').textContent=fbErr(err); }
 };
 $('taBack').onclick=()=>openDash();
+
+/* ===================== PRISIJUNGIMO EKRANO EFEKTAI ===================== */
+(function(){
+  const rh=()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase();
+  const ip=()=>`${rnd(10,223)}.${rnd(0,255)}.${rnd(0,255)}.${rnd(1,254)}`;
+  const visible=()=>!$('tLogin').classList.contains('hidden') && innerWidth>960;
+  /* --- kairė: terminalas --- */
+  const SCRIPT=[
+    ['cmd',()=>`$ nmap -sS ${ip()}`],['dim',()=>`Starting Nmap scan... ${rnd(120,999)} hosts`],
+    ['ok',()=>`[+] PORT 22/tcp   open  ssh`],['ok',()=>`[+] PORT 443/tcp  open  https`],['warn',()=>`[!] PORT 3306/tcp filtered`],
+    ['cmd',()=>`$ ssh root@${ip()} -p 22`],['dim',()=>`Connecting... handshake ${rh()}${rh()}:${rh()}${rh()}`],
+    ['bad',()=>`[-] Access denied (publickey)`],['cmd',()=>`$ ./bruteforce --wordlist rockyou.txt --threads ${rnd(8,64)}`],
+    ['dim',()=>`trying ${rnd(10000,99999)} / 14 344 391 ...`],['warn',()=>`[*] Bypassing firewall layer ${rnd(1,7)}/7`],
+    ['ok',()=>`[+] Firewall layer bypassed`],['cmd',()=>`$ decrypt --aes-256 /etc/shadow`],
+    ['dim',()=>`██████████${'░'.repeat(rnd(1,8))} ${rnd(60,99)}%`],['ok',()=>`[+] Hash cracked: ${rh()}${rh()}${rh()}${rh()}…`],
+    ['cmd',()=>`$ sudo su`],['ok',()=>`root@mainframe:~# whoami`],['ok',()=>`root`],
+    ['warn',()=>`[*] Uploading payload.bin  ${rnd(12,512)} KB`],['dim',()=>`0x${rh()}${rh()}${rh()}${rh()}  ${rh()} ${rh()} ${rh()} ${rh()}  .ACCESS.`],
+    ['ok',()=>`[✔] PRIEIGA SUTEIKTA – laukiama mokytojo...`],['dim',()=>``]
+  ];
+  let si=0, ch=0, cur=null;
+  function termTick(){
+    if(!visible()) return;
+    const T=$('hxTerm'); if(!T) return;
+    if(!cur){ const [cls,fn]=SCRIPT[si++%SCRIPT.length]; cur=document.createElement('div'); cur.className=cls; cur.dataset.full=fn(); cur.textContent=''; T.appendChild(cur); ch=0;
+      while(T.children.length>60) T.firstChild.remove(); }
+    const full=cur.dataset.full, step=cur.className==='cmd'?1:Math.max(2,Math.ceil(full.length/6));
+    ch=Math.min(full.length, ch+step); cur.textContent=full.slice(0,ch)+(ch<full.length&&cur.className==='cmd'?'▌':'');
+    if(ch>=full.length) cur=null;
+  }
+  setInterval(termTick, 45);
+
+  /* --- dešinė: slaptažodžio laužiklis --- */
+  const CH='ABCDEFGHJKLMNPQRSTUVWXYZ0123456789#$%&@!';
+  let target='', locked=0, frame=0, pause=0;
+  function newTarget(){ target=Array.from({length:10},()=>CH[rnd(0,CH.length-1)]).join(''); locked=0; frame=0; $('hxCrack').classList.remove('done'); $('hxSt').textContent='SKENUOJAMA...'; }
+  function crackTick(){
+    if(!visible()) return;
+    if(!target) newTarget();
+    if(pause>0){ pause--; if(pause===0) newTarget(); return; }
+    frame++;
+    if(frame%5===0 && locked<target.length) locked++;
+    let html=''; for(let i=0;i<target.length;i++) html += i<locked ? `<b>${esc(target[i])}</b>` : esc(CH[rnd(0,CH.length-1)]);
+    $('hxSlots').innerHTML=html;
+    $('hxPct').textContent=Math.round(locked/target.length*100)+'%';
+    if(locked>=target.length){ $('hxCrack').classList.add('done'); $('hxSt').textContent='✔ ACCESS GRANTED'; pause=28; }
+    else if(frame%14===0) $('hxSt').textContent=['SKENUOJAMA...','TIKRINAMI HASH...','BRUTE FORCE...','DEKODUOJAMA...'][rnd(0,3)];
+  }
+  setInterval(crackTick, 70);
+
+  /* --- dešinė: sistemos juostos --- */
+  const BARS=['CPU','NET ↑','NET ↓','ENCRYPT','FIREWALL'];
+  $('hxBars').innerHTML=BARS.map(b=>`<div class="hxBar"><span>${b}</span><div class="tr"><div style="width:30%"></div></div><span>30%</span></div>`).join('');
+  setInterval(()=>{ if(!visible()) return;
+    $('hxBars').querySelectorAll('.hxBar').forEach(r=>{ const v=rnd(12,98); const d=r.querySelector('.tr div'); d.style.width=v+'%'; d.classList.toggle('hot',v>85); r.lastElementChild.textContent=v+'%'; });
+  }, 900);
+
+  /* --- dešinė: atminties išklotinė --- */
+  let addr=0x7FF30000;
+  setInterval(()=>{ if(!visible()) return;
+    const H=$('hxHex'); const bytes=Array.from({length:8},rh);
+    const asc=bytes.map(b=>{ const c=parseInt(b,16); return c>32&&c<127?String.fromCharCode(c):'.'; }).join('');
+    const d=document.createElement('div');
+    const hl=Math.random()<.12;
+    d.innerHTML=`${(addr+=8).toString(16).toUpperCase()}  ${hl?'<span class="hl">':''}${bytes.join(' ')}${hl?'</span>':''}  ${esc(asc)}`;
+    H.appendChild(d); while(H.children.length>40) H.firstChild.remove();
+  }, 160);
+})();
 
 /* ===================== MATRIX LIETUS ===================== */
 const cv=$('rain'), cx=cv.getContext('2d'); let cols=[], fs=18;

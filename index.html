@@ -1113,7 +1113,14 @@ function myQs(){ return (C.questions && C.questions.length) ? C.questions : QUES
 
 /* ===================== FIREBASE: MOKYTOJAI ===================== */
 /* Įklijuokite savo Firebase projekto nustatymus vietoj null (Project settings → Your apps → firebaseConfig). */
-const FIREBASE_CONFIG = null;
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBfV5n1EVLsPKtC3U5yr8EZvT3RzhxKoyw",
+  authDomain: "prisijunk.firebaseapp.com",
+  projectId: "prisijunk",
+  storageBucket: "prisijunk.firebasestorage.app",
+  messagingSenderId: "55655779497",
+  appId: "1:55655779497:web:45e0ecdf508fa5c7242db8"
+};
 const FB_VER = "10.12.2";
 /* Google prisijungimas: pakeiskite į true, kai Firebase įjungsite Google (Authentication → Sign-in method). */
 const GOOGLE_LOGIN = false;

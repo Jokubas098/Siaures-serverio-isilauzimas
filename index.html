@@ -1183,7 +1183,7 @@ function fbErr(e){
     'auth/invalid-email':'Neteisingas el. pašto adresas.','auth/email-already-in-use':'Su šiuo el. paštu paskyra jau yra – prisijunkite.',
     'auth/weak-password':'Slaptažodis per trumpas – bent 6 simboliai.','auth/too-many-requests':'Per daug bandymų. Palaukite kelias minutes.',
     'auth/popup-blocked':'Naršyklė užblokavo prisijungimo langą – leiskite iššokančius langus.','auth/unauthorized-domain':'Šis adresas neleidžiamas. Firebase → Authentication → Settings → Authorized domains pridėkite jokubas098.github.io',
-    'auth/network-request-failed':'Nėra interneto ryšio.','auth/operation-not-allowed':'Šis prisijungimo būdas dar neįjungtas. Prisijunkite el. paštu arba paprašykite administratoriaus įjungti Google prisijungimą.','auth/configuration-not-found':'Šis prisijungimo būdas dar neįjungtas Firebase nustatymuose.','permission-denied':'Neturite teisių šiam veiksmui.','unavailable':'Firebase šiuo metu nepasiekiamas. Bandykite vėliau.',
+    'auth/network-request-failed':'Nėra interneto ryšio.','auth/missing-password':'Įrašykite slaptažodį.','auth/missing-email':'Įrašykite el. paštą.','auth/operation-not-allowed':'Šis prisijungimo būdas dar neįjungtas. Prisijunkite el. paštu arba paprašykite administratoriaus įjungti Google prisijungimą.','auth/configuration-not-found':'Šis prisijungimo būdas dar neįjungtas Firebase nustatymuose.','permission-denied':'Neturite teisių šiam veiksmui.','unavailable':'Firebase šiuo metu nepasiekiamas. Bandykite vėliau.',
     'resource-exhausted':'Išnaudotas šiandienos nemokamas limitas. Jis atsinaujins 10:00 Lietuvos laiku.'
   };
   for(const k in map) if(c.includes(k)) return map[k];
@@ -1225,9 +1225,15 @@ function renderLoginForm(){
   const busy=async(fn)=>{ $('tlErr').textContent=''; try{ await fn(); }catch(e){ if(!String(e.code||'').includes('popup-closed')) $('tlErr').textContent=fbErr(e); } };
   const ep=()=>[$('tlEmail').value.trim(), $('tlPass').value];
   if($('tlG')) $('tlG').onclick=()=>busy(()=>DB.google());
-  $('tlIn').onclick=()=>busy(()=>{ const [e,p]=ep(); return DB.emailIn(e,p); });
+  const check=(up)=>{ const [e,p]=ep();
+    if(!e) throw {code:'auth/missing-email'};
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) throw {code:'auth/invalid-email'};
+    if(!p) throw {code:'auth/missing-password'};
+    if(up && p.length<6) throw {code:'auth/weak-password'};
+    return [e,p]; };
+  $('tlIn').onclick=()=>busy(()=>{ const [e,p]=check(false); return DB.emailIn(e,p); });
   $('tlPass').onkeydown=ev=>{ if(ev.key==='Enter') $('tlIn').click(); };
-  $('tlUp').onclick=()=>busy(()=>{ const [e,p]=ep(); return DB.emailUp(e,p); });
+  $('tlUp').onclick=()=>busy(()=>{ const [e,p]=check(true); return DB.emailUp(e,p); });
   $('tlReset').onclick=()=>busy(async()=>{ const e=$('tlEmail').value.trim(); if(!e) throw {code:'auth/invalid-email'}; await DB.reset(e); $('tlErr').innerHTML='<span class="cyan">Slaptažodžio keitimo nuoroda išsiųsta į el. paštą.</span>'; });
 }
 function renderVerify(st){

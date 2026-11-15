@@ -179,6 +179,22 @@ input.ok{border-color:var(--g);border-width:2px}
 .ederr{color:var(--r);font-weight:700;font-size:.85rem;margin-top:6px}
 .pastebox{padding:16px 18px}
 .trow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--dim);color:#d7ffe8}
+/* KOMANDOS */
+.tchip{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:99px;font-weight:800;font-size:.8rem;border:1px solid currentColor}
+.tcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:10px}
+.tcol{border:1px solid var(--dim);border-radius:10px;padding:10px;background:rgba(0,20,10,.6)}
+.tcol h4{margin:0 0 8px;font-size:.9rem;display:flex;justify-content:space-between}
+.tcol .chips{margin-top:0}
+.pchip.mv{cursor:pointer}
+.pchip.mv:hover{border-color:var(--c)}
+.trow2{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;margin-bottom:6px;border:1px solid var(--dim);background:rgba(0,20,10,.6)}
+.trow2 .tn{font-weight:800}
+.trow2 .tb{grid-column:2/4;height:7px;background:#062214;border-radius:9px;overflow:hidden}
+.trow2 .tb div{height:100%;transition:width .6s}
+.trow2.mine{border-color:var(--g);box-shadow:0 0 10px rgba(57,255,138,.25)}
+.bigboard .trow2{font-size:1.25rem;padding:12px 14px}
+.bigboard .trow2 .tb{height:10px}
+.teamBanner{display:inline-block;margin-top:14px;padding:8px 18px;border-radius:10px;font-weight:800;font-size:1.15rem;border:2px solid currentColor}
 /* X2 */
 .x2on{display:inline-block;margin:4px 0 0;padding:6px 14px;border:1px solid var(--gold);border-radius:99px;color:var(--gold);font-weight:800;font-size:.9rem;box-shadow:0 0 14px rgba(255,216,77,.35);animation:blink 1.2s infinite}
 .x2tag{color:var(--gold);font-size:.8rem}
@@ -397,6 +413,7 @@ input.ok{border-color:var(--g);border-width:2px}
   <h1 class="glow" style="font-size:1.8rem" id="wName"></h1>
   <p class="muted">Tavo slaptažodis: <span class="cyan" id="wPw"></span> – niekam nesakyk!</p>
   <p style="margin-top:24px"><span class="spinner"></span>Laukiama, kol mokytojas pradės žaidimą...</p>
+  <div id="wTeam"></div>
   <p class="muted" id="wCount"></p>
   <div class="rulesHere"></div>
 </section>
@@ -404,7 +421,7 @@ input.ok{border-color:var(--g);border-width:2px}
 <!-- ================= PLAY (mokinys) ================= -->
 <section id="play" class="hidden" style="flex:1;display:flex;flex-direction:column">
   <div class="hud panel">
-    <div><div class="lbl">HAKERIS · <span id="pNet" style="color:var(--g)">● RYŠYS OK</span></div><div style="font-weight:800;font-size:1.1rem" id="pName"></div></div>
+    <div><div class="lbl">HAKERIS · <span id="pNet" style="color:var(--g)">● RYŠYS OK</span></div><div style="font-weight:800;font-size:1.1rem"><span id="pName"></span> <span id="pTeam"></span></div></div>
     <div style="text-align:center"><div class="lbl">LIKO LAIKO</div><div class="big" id="pTimer">–:––</div></div>
     <div style="text-align:right"><div class="lbl">TAVO KRIPTOVALIUTA</div><div class="big gold" id="pCoins">₿ 0</div></div>
   </div>
@@ -428,6 +445,11 @@ input.ok{border-color:var(--g);border-width:2px}
       <p style="margin:18px 0 4px;font-weight:700">Mokiniai atsidaro:</p>
       <div class="url" id="hUrl"></div>
       <p class="muted" style="font-size:.85rem;margin:0">→ „Prisijungti“ → įveda kodą</p>
+      <label>&gt; REŽIMAS</label>
+      <div class="pick" id="hMode">
+        <button data-m="0" class="on">👤 Kiekvienas sau</button><button data-m="2">👥 2 kom.</button><button data-m="3">3 kom.</button><button data-m="4">4 kom.</button>
+      </div>
+      <div id="hShuffleWrap" class="hidden" style="margin-top:8px"><button class="btn sm cy" id="hShuffle">🔀 Sumaišyti komandas</button></div>
       <label>&gt; ŽAIDIMO TRUKMĖ</label>
       <div class="pick" id="hTime">
         <button data-t="180">3 min</button><button data-t="300" class="on">5 min</button>
@@ -441,7 +463,7 @@ input.ok{border-color:var(--g);border-width:2px}
         <p class="sh" style="margin:0">// PRISIJUNGĘ HAKERIAI</p>
         <span class="orb gold" style="font-size:1.6rem" id="hCount">0</span>
       </div>
-      <p class="muted" style="font-size:.8rem;margin:6px 0 0">Spustelėk ✕, kad pašalintum žaidėją.</p>
+      <p class="muted" style="font-size:.8rem;margin:6px 0 0" id="hChipHint">Spustelėk ✕, kad pašalintum žaidėją.</p>
       <div class="chips" id="hChips"></div>
       <div class="hlRules"><div class="rulesHere"></div></div>
     </div>
@@ -561,6 +583,23 @@ function decoys(pw, n){
 }
 const AVATARS = ["👾","🤖","👽","💀","🦊","🐺","🐉","🦉","🐙","🦈","🐱","🐼"];
 const PREFIX = "snhack-lt-";
+const TEAMS = [
+  {name:'Raudoni', em:'🔴', col:'#ff3b5c'},
+  {name:'Mėlyni',  em:'🔵', col:'#4de1ff'},
+  {name:'Žali',    em:'🟢', col:'#39ff8a'},
+  {name:'Geltoni', em:'🟡', col:'#ffd84d'}
+];
+const teamChip = t => (t==null||!TEAMS[t]) ? '' : `<span class="tchip" style="color:${TEAMS[t].col}">${TEAMS[t].em} ${TEAMS[t].name}</span>`;
+/* komandų rezultatai iš žaidėjų sąrašo */
+function teamStandings(list, n){
+  const T=Array.from({length:n},(_,i)=>({team:i, score:0, members:[]}));
+  list.forEach(p=>{ if(p.team!=null && T[p.team]){ T[p.team].score+=p.coins; T[p.team].members.push(p); } });
+  return T.filter(t=>t.members.length).sort((a,b)=>b.score-a.score);
+}
+function teamBoardHTML(st, myTeam){
+  const max=Math.max(1,...st.map(t=>t.score));
+  return st.map((t,i)=>`<div class="trow2 ${t.team===myTeam?'mine':''}"><span class="p">${i+1}.</span><span class="tn" style="color:${TEAMS[t.team].col}">${TEAMS[t.team].em} ${TEAMS[t.team].name} <span class="muted" style="font-size:.75em">(${t.members.length})</span></span><span class="v gold">₿ ${fmt(t.score)}</span><div class="tb"><div style="width:${Math.round(t.score/max*100)}%;background:${TEAMS[t.team].col}"></div></div></div>`).join('');
+}
 const GUESS_TIME = 8;
 const PeerCls = window.Peer;
 
@@ -578,7 +617,7 @@ function toast(msg,good){ const t=$('toast'); t.textContent=msg; t.className=goo
 const ss = { get(k){ try{return JSON.parse(sessionStorage.getItem(k));}catch(e){return null;} }, set(k,v){ try{sessionStorage.setItem(k,JSON.stringify(v));}catch(e){} }, del(k){ try{sessionStorage.removeItem(k);}catch(e){} } };
 function noPeer(){ if(!PeerCls){ toast("Nepavyko įkelti ryšio bibliotekos (PeerJS). Patikrinkite internetą.", false); return true; } return false; }
 function boardHTML(list, meId){
-  return list.map((p,i)=>`<div class="row ${p.id===meId?'me':''}"><span class="p">${i+1}.</span><span>${p.av}</span><span class="n">${esc(p.name)}</span><span class="v">₿ ${fmt(p.coins)}</span></div>`).join('') || '<div class="muted">Kol kas tuščia</div>';
+  return list.map((p,i)=>`<div class="row ${p.id===meId?'me':''}"><span class="p">${i+1}.</span><span>${p.team!=null&&TEAMS[p.team]?TEAMS[p.team].em:''}${p.av}</span><span class="n">${esc(p.name)}</span><span class="v">₿ ${fmt(p.coins)}</span></div>`).join('') || '<div class="muted">Kol kas tuščia</div>';
 }
 function addLog(el, text, cls, max=60){
   const d=document.createElement('div'); d.className='ln '+(cls||''); d.textContent=text; el.prepend(d);
@@ -594,6 +633,7 @@ const RULES_HTML = `<div class="rules"><h3>// TAISYKLĖS</h3><ol>
     <span>🦠 <b>Virusas</b> – prarandi 15 %</span><span>💾 <b>Tuščias failas</b> – nieko</span></div></li>
   <li><b>Įsilaužimas:</b> pasirink draugą ir per <b>8 sekundes</b> atspėk jo slaptažodį iš 4 variantų. Variantai labai panašūs – žiūrėk atidžiai (0 ir O, 1 ir l, 3 ir e)! Pavyks – pavogsi <b>10–30 %</b> jo KriptoCoin.</li>
   <li><b>Saugok savo slaptažodį!</b> Niekam jo nesakyk ir neleisk žiūrėti į savo ekraną – kiti bandys įsilaužti į tave.</li>
+  <li><b>Komandų režime</b> visų komandos narių taškai sumuojami, o į savo komandos draugus įsilaužti negalima – laužk tik priešininkus!</li>
   <li>Žaisk sąžiningai: neliesk kitų įrenginių ir neperkrauk puslapio be reikalo. Jei ryšys nutrūks – žaidimas prisijungs iš naujo pats.</li>
 </ol><div class="win">🏆 Laimi tas, kas baigiantis laikui turi daugiausia ₿ KriptoCoin!</div></div>`;
 document.querySelectorAll('.rulesHere').forEach(el=>el.innerHTML=RULES_HTML);
@@ -615,7 +655,7 @@ $('eHome').onclick = ()=> { location.href = location.pathname; };
 /* =====================================================================
    MOKYTOJAS (HOST) – žaidimo serveris, visa tiesa saugoma čia
    ===================================================================== */
-const H = { questions:[], setTitle:'', qs:{}, startedAt:null, peer:null, code:null, players:new Map(), conns:new Map(), phase:'lobby', left:300, duration:300, timer:null, pending:new Map() };
+const H = { mode:0, questions:[], setTitle:'', qs:{}, startedAt:null, peer:null, code:null, players:new Map(), conns:new Map(), phase:'lobby', left:300, duration:300, timer:null, pending:new Map() };
 
 function startHost(set){
   set = set || BUILTIN;
@@ -656,7 +696,27 @@ document.querySelectorAll('#hTime button').forEach(b=>b.onclick=()=>{
 
 function hSend(p, msg){ const c = H.conns.get(p.id); if(c && c.open){ try{ c.send(msg); }catch(e){} } }
 function hBroadcast(msg){ H.players.forEach(p=>hSend(p,msg)); }
-function publicList(){ return [...H.players.values()].filter(p=>!p.kicked).sort((a,b)=>b.coins-a.coins).map(p=>({id:p.id,name:p.name,av:p.av,coins:p.coins,on:p.online})); }
+function publicList(){ return [...H.players.values()].filter(p=>!p.kicked).sort((a,b)=>b.coins-a.coins).map(p=>({id:p.id,name:p.name,av:p.av,coins:p.coins,on:p.online,team:H.mode?p.team:null})); }
+const tagP = p => (H.mode && TEAMS[p.team] ? TEAMS[p.team].em+' ' : '') + p.av+' '+p.name;
+function smallestTeam(){
+  const cnt=Array(H.mode).fill(0); H.players.forEach(p=>{ if(!p.kicked && p.team!=null && p.team<H.mode) cnt[p.team]++; });
+  const min=Math.min(...cnt); const opts=cnt.map((c,i)=>c===min?i:-1).filter(i=>i>=0); return pick(opts);
+}
+function assignTeams(shuffleAll){
+  const list=[...H.players.values()].filter(p=>!p.kicked);
+  if(!H.mode){ list.forEach(p=>p.team=null); return; }
+  if(shuffleAll){ shuffle(list).forEach((p,i)=>p.team=i%H.mode); return; }
+  list.forEach(p=>{ if(p.team==null || p.team>=H.mode) p.team=null; });
+  list.filter(p=>p.team==null).forEach(p=>p.team=smallestTeam());
+}
+document.querySelectorAll('#hMode button').forEach(b=>b.onclick=()=>{
+  if(H.phase==='game') return;
+  document.querySelectorAll('#hMode button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  H.mode=+b.dataset.m; assignTeams(true);
+  $('hShuffleWrap').classList.toggle('hidden', !H.mode);
+  renderLobby(); hostState();
+});
+$('hShuffle').onclick=()=>{ assignTeams(true); renderLobby(); hostState(); };
 
 function hostHandle(conn, d){
   if(!d || typeof d!=='object') return;
@@ -682,11 +742,12 @@ function hostHandle(conn, d){
       const k = d.k===3 ? 3 : 2; const now=Date.now();
       if(!(p.chests>0) || (p.lastMult && now-p.lastMult<1500)) break;
       p.chests--; p.lastMult=now; const before=p.coins; p.coins = before*k;
-      if(before>0) hostFeed(`💎 ${p.av} ${p.name} ${k===3?'patrigubino':'padvigubino'} savo taškus: ₿ ${fmt(before)} → ₿ ${fmt(p.coins)}!`, 'good');
+      if(before>0) hostFeed(`💎 ${tagP(p)} ${k===3?'patrigubino':'padvigubino'} savo taškus: ₿ ${fmt(before)} → ₿ ${fmt(p.coins)}!`, 'good');
       hostState(); break; }
     case 'hackReq': {
       const tg = H.players.get(d.target);
       if(!tg || tg===p || tg.kicked){ hSend(p,{t:'hackFail',why:'Taikinys nerastas'}); break; }
+      if(H.mode && tg.team===p.team){ hSend(p,{t:'hackFail',why:'Į savo komandos narį įsilaužti negalima!'}); break; }
       const fakes = decoys(tg.pw, 3);
       H.pending.set(p.id, tg.id);
       hSend(p,{t:'hackOpts', target:tg.id, tname:tg.name, tav:tg.av, opts:shuffle([tg.pw,...fakes])});
@@ -700,14 +761,14 @@ function hostHandle(conn, d){
         tg.shield=false;
         hSend(p,{t:'hackRes', ok:false, blocked:true, tname:tg.name});
         hSend(tg,{t:'blocked', by:p.name, byav:p.av});
-        hostFeed(`🛡️ ${p.av} ${p.name} bandė įsilaužti į ${tg.av} ${tg.name}, bet ugniasienė atlaikė!`, '');
+        hostFeed(`🛡️ ${tagP(p)} bandė įsilaužti į ${tagP(tg)}, bet ugniasienė atlaikė!`, '');
         hostState(); break;
       }
       const pct = rnd(10,30), amt = Math.floor(tg.coins*pct/100);
       tg.coins-=amt; p.coins+=amt; p.hacks++; p.stolen+=amt; tg.lost+=amt;
       hSend(p,{t:'hackRes', ok:true, amt, pct, tname:tg.name});
       hSend(tg,{t:'hacked', by:p.name, byav:p.av, amt});
-      hostFeed(`🔓 ${p.av} ${p.name} įsilaužė į ${tg.av} ${tg.name} ir pavogė ₿ ${fmt(amt)}!`, 'good');
+      hostFeed(`🔓 ${tagP(p)} įsilaužė į ${tagP(tg)} ir pavogė ₿ ${fmt(amt)}!`, 'good');
       hostState(); break; }
   }
 }
@@ -729,7 +790,8 @@ function hostJoin(conn, d){
           name, av: AVATARS.includes(d.av)?d.av:pick(AVATARS), pw, coins:0, shield:false,
           right:0, wrong:0, hacks:0, hackTries:0, stolen:0, lost:0, missed:{}, online:true, kicked:false };
     H.players.set(p.id,p);
-    if(H.phase==='game') hostFeed(`➕ ${p.av} ${p.name} prisijungė prie žaidimo`, '');
+    p.team = H.mode ? smallestTeam() : null;
+    if(H.phase==='game') hostFeed(`➕ ${tagP(p)} prisijungė prie žaidimo`, '');
   }
   const old = H.conns.get(p.id); if(old && old!==conn){ old.__pid=null; try{ old.close(); }catch(e){} }
   conn.__pid = p.id; H.conns.set(p.id, conn); p.online = true;
@@ -754,23 +816,37 @@ function kick(id){
 function renderLobby(){
   const list=[...H.players.values()].filter(p=>!p.kicked);
   $('hCount').textContent = list.length;
+  $('hChipHint').textContent = H.mode ? 'Spustelėk vardą, kad perkeltum į kitą komandą. ✕ – pašalinti žaidėją.' : 'Spustelėk ✕, kad pašalintum žaidėją.';
   const box=$('hChips'); box.innerHTML='';
-  list.forEach(p=>{
-    const c=document.createElement('div'); c.className='pchip'+(p.online?'':' off');
+  const chip=p=>{
+    const c=document.createElement('div'); c.className='pchip'+(p.online?'':' off')+(H.mode?' mv':'');
     c.innerHTML=`<span>${p.av}</span><span></span><button class="x" title="Pašalinti">✕</button>`;
     c.children[1].textContent=p.name;
-    c.querySelector('.x').onclick=()=>kick(p.id);
-    box.appendChild(c);
-  });
-  if(!list.length) box.innerHTML='<div class="muted">Dar niekas neprisijungė...</div>';
+    c.querySelector('.x').onclick=ev=>{ ev.stopPropagation(); kick(p.id); };
+    if(H.mode) c.onclick=()=>{ p.team=(p.team+1)%H.mode; renderLobby(); hostState(); };
+    return c;
+  };
+  if(!list.length){ box.innerHTML='<div class="muted">Dar niekas neprisijungė...</div>'; return; }
+  if(!H.mode){ list.forEach(p=>box.appendChild(chip(p))); return; }
+  const cols=document.createElement('div'); cols.className='tcols'; cols.style.width='100%';
+  for(let t=0;t<H.mode;t++){
+    const col=document.createElement('div'); col.className='tcol'; col.style.borderColor=TEAMS[t].col+'66';
+    const mem=list.filter(p=>p.team===t);
+    col.innerHTML=`<h4 style="color:${TEAMS[t].col}"><span>${TEAMS[t].em} ${TEAMS[t].name}</span><span>${mem.length}</span></h4><div class="chips"></div>`;
+    mem.forEach(p=>col.querySelector('.chips').appendChild(chip(p)));
+    cols.appendChild(col);
+  }
+  box.appendChild(cols);
 }
 
 $('hStart').onclick = ()=>{
   if(![...H.players.values()].some(p=>!p.kicked)){ toast("Palaukite, kol prisijungs bent vienas žaidėjas.", false); return; }
   H.phase='game'; H.left=H.duration; $('hLog').innerHTML='';
+  assignTeams(false);
+  document.querySelectorAll('#hMode button').forEach(b=>b.disabled=true); $('hShuffle').disabled=true;
   H.players.forEach(p=>{ p.coins=0; p.shield=false; p.right=p.wrong=p.hacks=p.hackTries=p.stolen=p.lost=0; p.chests=0; p.missed={}; });
   H.qs={}; H.startedAt=new Date();
-  show('hGame'); hostFeed('▶ Žaidimas prasidėjo! Sėkmės, hakeriai!', 'good');
+  show('hGame'); hostFeed(H.mode ? `▶ Komandų žaidimas prasidėjo! ${TEAMS.slice(0,H.mode).map(t=>t.em+' '+t.name).join(' vs ')}` : '▶ Žaidimas prasidėjo! Sėkmės, hakeriai!', 'good');
   hBroadcast({t:'start', left:H.left, questions:H.questions});
   hostState();
   clearInterval(H.timer);
@@ -787,23 +863,29 @@ function hostFeed(text, cls){ addLog($('hLog'), `[${mmss(H.duration-H.left)}] ${
 let lastRender=0;
 function hostState(){
   const list = publicList();
-  H.players.forEach(p=>{ if(!p.kicked) hSend(p,{t:'state', phase:H.phase, left:H.left, list, you:{coins:p.coins, shield:p.shield}}); });
+  H.players.forEach(p=>{ if(!p.kicked) hSend(p,{t:'state', phase:H.phase, left:H.left, list, mode:H.mode, you:{coins:p.coins, shield:p.shield, team:H.mode?p.team:null}}); });
   hostRender(list);
 }
 function hostRender(list){
   list = list || publicList();
   $('hgTimer').textContent = mmss(H.left);
   $('hgTimer').classList.toggle('low', H.phase==='game' && H.left<=30);
-  $('hRows').innerHTML = boardHTML(list.slice(0,15), null) + (list.length>15?`<div class="muted" style="margin-top:6px">+ dar ${list.length-15} žaidėjai</div>`:'');
+  if(H.mode){
+    $('hRows').innerHTML = `<p class="sh" style="margin:0 0 8px">// KOMANDOS</p>` + teamBoardHTML(teamStandings(list,H.mode), null)
+      + `<p class="sh" style="margin:16px 0 8px">// GERIAUSI HAKERIAI</p>` + boardHTML(list.slice(0,8), null);
+  } else {
+    $('hRows').innerHTML = boardHTML(list.slice(0,15), null) + (list.length>15?`<div class="muted" style="margin-top:6px">+ dar ${list.length-15} žaidėjai</div>`:'');
+  }
 }
 
 function hostEnd(){
   if(H.phase==='end') return;
   H.phase='end'; clearInterval(H.timer);
   const full=[...H.players.values()].filter(p=>!p.kicked).sort((a,b)=>b.coins-a.coins);
-  const ranking=full.map(p=>({id:p.id,name:p.name,av:p.av,coins:p.coins}));
-  full.forEach((p,i)=>hSend(p,{t:'end', ranking, place:i+1, stats:{right:p.right,wrong:p.wrong,hacks:p.hacks,stolen:p.stolen,lost:p.lost}}));
-  renderEnd(ranking, null, null);
+  const ranking=full.map(p=>({id:p.id,name:p.name,av:p.av,coins:p.coins,team:H.mode?p.team:null}));
+  const teams = H.mode ? teamStandings(ranking, H.mode).map(t=>({team:t.team, score:t.score, n:t.members.length})) : null;
+  full.forEach((p,i)=>hSend(p,{t:'end', ranking, teams, myTeam:H.mode?p.team:null, place:i+1, stats:{right:p.right,wrong:p.wrong,hacks:p.hacks,stolen:p.stolen,lost:p.lost}}));
+  renderEnd(ranking, null, null, teams, null);
   buildReport(full);
   $('eAgain').classList.remove('hidden');
 }
@@ -814,7 +896,7 @@ function buildReport(full){
   REPORT = full.map((p,i)=>{
     const tot=p.right+p.wrong;
     const missed=Object.entries(p.missed).sort((a,b)=>b[1]-a[1]).map(([qi])=>H.questions[qi].q);
-    return {place:i+1, name:p.name, av:p.av, coins:p.coins, right:p.right, wrong:p.wrong, total:tot,
+    return {place:i+1, name:p.name, av:p.av, team:H.mode&&TEAMS[p.team]?TEAMS[p.team].name:'', teamEm:H.mode&&TEAMS[p.team]?TEAMS[p.team].em:'', coins:p.coins, right:p.right, wrong:p.wrong, total:tot,
       acc: tot?Math.round(p.right/tot*100):0, hacks:p.hacks, tries:p.hackTries, stolen:p.stolen, lost:p.lost, missed};
   });
   const d=H.startedAt||new Date();
@@ -833,17 +915,17 @@ let rSort={k:'place',asc:true};
 function renderReportTable(k, asc){
   rSort={k,asc};
   const rows=[...REPORT].sort((a,b)=>{ const x=a[k], y=b[k]; const c = typeof x==='string' ? x.localeCompare(y,'lt') : x-y; return asc?c:-c; });
-  const cols=[['place','Vt.'],['name','Mokinys'],['coins','₿ Taškai'],['right','Teisingi'],['wrong','Klaidingi'],['acc','Tikslumas'],['hacks','Įsilaužimai'],['stolen','Pavogė'],['lost','Prarado'],['missed','Klydo klausimuose']];
+  const cols=[['place','Vt.'],['name','Mokinys'],...(H.mode?[['team','Komanda']]:[]),['coins','₿ Taškai'],['right','Teisingi'],['wrong','Klaidingi'],['acc','Tikslumas'],['hacks','Įsilaužimai'],['stolen','Pavogė'],['lost','Prarado'],['missed','Klydo klausimuose']];
   $('rTable').innerHTML = '<tr>'+cols.map(([c,l])=>`<th data-k="${c}">${l}${c===k?(asc?' ▲':' ▼'):''}</th>`).join('')+'</tr>' +
-    rows.map(r=>`<tr class="${r.total && r.acc<50?'weak':''}"><td class="n">${r.place}</td><td>${r.av} ${esc(r.name)}</td><td class="n gold">${fmt(r.coins)}</td><td class="n">${r.right}</td><td class="n">${r.wrong}</td>
+    rows.map(r=>`<tr class="${r.total && r.acc<50?'weak':''}"><td class="n">${r.place}</td><td>${r.av} ${esc(r.name)}</td>${H.mode?`<td>${r.teamEm} ${esc(r.team)}</td>`:''}<td class="n gold">${fmt(r.coins)}</td><td class="n">${r.right}</td><td class="n">${r.wrong}</td>
       <td class="n"><span class="acc ${r.total && r.acc<50?'red':''}">${r.total?r.acc+'%':'–'}</span></td><td class="n">${r.hacks}/${r.tries}</td><td class="n">${fmt(r.stolen)}</td><td class="n">${fmt(r.lost)}</td>
       <td class="miss">${r.missed.length? r.missed.slice(0,3).map(esc).join('<br>') + (r.missed.length>3?`<br><span class="muted">+ dar ${r.missed.length-3}</span>`:'') : '<span class="muted">–</span>'}</td></tr>`).join('');
   $('rTable').querySelectorAll('th').forEach(th=>th.onclick=()=>{ const kk=th.dataset.k; if(kk==='missed') return; renderReportTable(kk, rSort.k===kk ? !rSort.asc : kk==='name'||kk==='place'); });
 }
 $('rCsv').onclick = ()=>{
   const q = v => `"${String(v).replace(/"/g,'""')}"`;
-  const head=['Vieta','Mokinys','Taškai','Teisingi','Klaidingi','Tikslumas %','Įsilaužimai (pavyko)','Įsilaužimai (bandyta)','Pavogė','Prarado','Klydo klausimuose'];
-  const lines=[head.map(q).join(';')].concat(REPORT.map(r=>[r.place,r.name,r.coins,r.right,r.wrong,r.total?r.acc:'',r.hacks,r.tries,r.stolen,r.lost,r.missed.join(' | ')].map(q).join(';')));
+  const head=['Vieta','Mokinys',...(H.mode?['Komanda']:[]),'Taškai','Teisingi','Klaidingi','Tikslumas %','Įsilaužimai (pavyko)','Įsilaužimai (bandyta)','Pavogė','Prarado','Klydo klausimuose'];
+  const lines=[head.map(q).join(';')].concat(REPORT.map(r=>[r.place,r.name,...(H.mode?[r.team]:[]),r.coins,r.right,r.wrong,r.total?r.acc:'',r.hacks,r.tries,r.stolen,r.lost,r.missed.join(' | ')].map(q).join(';')));
   lines.push('');
   lines.push(['Klausimas','Teisingas atsakymas','Atsakyta','Teisingai %'].map(q).join(';'));
   Object.entries(H.qs).forEach(([qi,st])=>lines.push([H.questions[qi].q,H.questions[qi].a[0],st.r+st.w,Math.round(st.r/(st.r+st.w)*100)].map(q).join(';')));
@@ -857,6 +939,7 @@ $('rPrint').onclick = ()=> window.print();
 
 $('eAgain').onclick = ()=>{
   H.phase='lobby'; H.pending.clear();
+  document.querySelectorAll('#hMode button').forEach(b=>b.disabled=false); $('hShuffle').disabled=false;
   H.players.forEach(p=>{ p.coins=0; p.shield=false; });
   hBroadcast({t:'lobby'});
   $('report').classList.add('hidden'); $('end').classList.remove('wide');
@@ -866,7 +949,7 @@ $('eAgain').onclick = ()=>{
 /* =====================================================================
    MOKINYS (CLIENT)
    ===================================================================== */
-const C = { questions:null, guessT:null, lastMsg:0, outbox:[], awaitHack:null, awaitRes:null, hackT:null, peer:null, conn:null, code:null, me:null, token:null, pw:null, av:null, name:null, list:[], coins:0, shield:false,
+const C = { mode:0, team:null, questions:null, guessT:null, lastMsg:0, outbox:[], awaitHack:null, awaitRes:null, hackT:null, peer:null, conn:null, code:null, me:null, token:null, pw:null, av:null, name:null, list:[], coins:0, shield:false,
             left:0, phase:'lobby', deck:[], qi:0, right:0, double:false, busy:false, retry:0, kicked:false, screen:null };
 
 function initJoin(){
@@ -980,7 +1063,9 @@ function clientHandle(d){
       C.kicked=true; ss.del('snhack'); show('home'); toast('Mokytojas pašalino tave iš žaidimo.', false);
       try{C.peer.destroy();}catch(e){} break;
     case 'state':
-      C.list=d.list; C.left=d.left; C.coins=d.you.coins; C.shield=d.you.shield;
+      C.list=d.list; C.left=d.left; C.coins=d.you.coins; C.shield=d.you.shield; C.mode=d.mode||0; C.team=d.you.team;
+      $('pTeam').innerHTML = C.mode ? teamChip(C.team) : '';
+      $('wTeam').innerHTML = C.mode && TEAMS[C.team] ? `<div class="teamBanner" style="color:${TEAMS[C.team].col}">Tavo komanda: ${TEAMS[C.team].em} ${TEAMS[C.team].name}</div>` : '';
       if(d.phase==='game' && C.screen!=='play') enterPlay();
       if(C.screen==='wait') $('wCount').textContent=`Prisijungę žaidėjai: ${d.list.length}`;
       renderClient(); break;
@@ -997,7 +1082,7 @@ function clientHandle(d){
     case 'hackOpts': if(C.awaitHack===d.target){ C.awaitHack=null; clearTimeout(C.hackT); showPwGuess(d); } break;
     case 'hackRes': if(C.awaitRes){ C.awaitRes=null; clearTimeout(C.hackT); showHackResult(d); } break;
     case 'hackFail': if(C.awaitHack||C.awaitRes){ C.awaitHack=null; C.awaitRes=null; clearTimeout(C.hackT); toast(d.why||'Įsilaužti nepavyko', false); nextQuestion(); } break;
-    case 'end': C.phase='end'; C.screen='end'; renderEnd(d.ranking, d.place, d.stats); break;
+    case 'end': C.phase='end'; C.screen='end'; renderEnd(d.ranking, d.place, d.stats, d.teams, d.myTeam); break;
   }
 }
 
@@ -1011,8 +1096,14 @@ function renderClient(){
   $('pCoins').textContent = `₿ ${fmt(C.coins)}` + (C.shield?' 🛡️':'') + (C.double?' ⚡':'');
   $('pTimer').textContent = mmss(C.left);
   $('pTimer').classList.toggle('low', C.left<=30);
-  $('pRows').innerHTML = boardHTML(C.list.slice(0,12), C.me) +
-    (C.list.findIndex(p=>p.id===C.me)>=12 ? `<div class="muted" style="margin-top:6px">Tavo vieta: ${C.list.findIndex(p=>p.id===C.me)+1}</div>` : '');
+  if(C.mode){
+    const mates=C.list.filter(p=>p.team===C.team);
+    $('pRows').innerHTML = teamBoardHTML(teamStandings(C.list,C.mode), C.team)
+      + `<p class="sh" style="margin:12px 0 6px">// TAVO KOMANDA</p>` + boardHTML(mates, C.me);
+  } else {
+    $('pRows').innerHTML = boardHTML(C.list.slice(0,12), C.me) +
+      (C.list.findIndex(p=>p.id===C.me)>=12 ? `<div class="muted" style="margin-top:6px">Tavo vieta: ${C.list.findIndex(p=>p.id===C.me)+1}</div>` : '');
+  }
 }
 function flash(){ const m=$('main'); m.classList.remove('glitch'); void m.offsetWidth; m.classList.add('glitch'); }
 
@@ -1052,7 +1143,7 @@ function answer(btn,o,opts,q){
 /* --- dėžės --- */
 function rollReward(){
   const base = 10 + Math.floor((C.right-1)*4);
-  const others = C.list.filter(p=>p.id!==C.me).length;
+  const others = C.list.filter(p=>p.id!==C.me && !(C.mode && p.team===C.team)).length;
   const r=Math.random();
   if(others>0 && r<0.22) return {type:'hack', ic:'🔓', txt:'ĮSILAUŽIMAS'};
   if(r<0.30) return {type:'x2', ic:'⚡', txt:'x2 KITAS LOBIS'};
@@ -1106,14 +1197,14 @@ function applyReward(r){
 /* --- įsilaužimas --- */
 function chooseTarget(){
   if(C.phase!=='game') return;
-  const list=C.list.filter(p=>p.id!==C.me);
+  const list=C.list.filter(p=>p.id!==C.me && !(C.mode && p.team===C.team));
   if(!list.length){ nextQuestion(); return; }
   const main=$('main');
   main.innerHTML=`<div class="center"><div class="qhead red">// ĮSILAUŽIMO MODULIS AKTYVUOTAS</div>
     <p class="title2 red" style="text-shadow:0 0 10px var(--r)">🔓 Į ką įsilauši?</p></div><div class="targets"></div>`;
   const box=main.querySelector('.targets');
   list.forEach(p=>{ const b=document.createElement('button'); b.className='tg';
-    b.innerHTML=`<div class="av">${p.av}</div><div class="nm"></div><div class="gold">₿ ${fmt(p.coins)}</div>`;
+    b.innerHTML=`<div class="av">${p.av}</div><div class="nm"></div>${C.mode?teamChip(p.team):''}<div class="gold">₿ ${fmt(p.coins)}</div>`;
     b.querySelector('.nm').textContent=p.name;
     b.onclick=()=>{
       box.querySelectorAll('button').forEach(x=>x.disabled=true);
@@ -1163,11 +1254,22 @@ function showHackResult(d){
 /* =====================================================================
    REZULTATAI (bendri)
    ===================================================================== */
-function renderEnd(ranking, place, stats){
+function renderEnd(ranking, place, stats, teams, myTeam){
   show('end');
-  const top=[ranking[1],ranking[0],ranking[2]], cls=['p2','p1','p3'], nums=[2,1,3];
-  $('podium').innerHTML = top.map((p,i)=> p ? `<div class="pod ${cls[i]}"><div class="av">${p.av}</div><div class="nm">${esc(p.name)}</div><div class="gold" style="font-weight:800">₿ ${fmt(p.coins)}</div><div class="blk">${nums[i]}</div></div>` : '').join('');
+  const cls=['p2','p1','p3'], nums=[2,1,3];
+  if(teams && teams.length){
+    const top=[teams[1],teams[0],teams[2]];
+    $('podium').innerHTML = top.map((t,i)=> t ? `<div class="pod ${cls[i]}"><div class="av">${TEAMS[t.team].em}</div><div class="nm" style="color:${TEAMS[t.team].col}">${TEAMS[t.team].name}</div><div class="muted" style="font-size:.8rem">${t.n} žaid.</div><div class="gold" style="font-weight:800">₿ ${fmt(t.score)}</div><div class="blk" style="${i===1?'':'border-color:'+TEAMS[t.team].col+'88'}">${nums[i]}</div></div>` : '').join('');
+  } else {
+    const top=[ranking[1],ranking[0],ranking[2]];
+    $('podium').innerHTML = top.map((p,i)=> p ? `<div class="pod ${cls[i]}"><div class="av">${p.av}</div><div class="nm">${esc(p.name)}</div><div class="gold" style="font-weight:800">₿ ${fmt(p.coins)}</div><div class="blk">${nums[i]}</div></div>` : '').join('');
+  }
   if(place){
+    if(teams && teams.length && TEAMS[myTeam]){
+      const tp=teams.findIndex(t=>t.team===myTeam)+1;
+      $('myPlace').innerHTML = (tp===1 ? `<span class="gold">🏆 Tavo komanda ${TEAMS[myTeam].em} ${TEAMS[myTeam].name} LAIMĖJO!</span>` : `Tavo komanda ${TEAMS[myTeam].em} ${TEAMS[myTeam].name}: <span class="gold">${tp}</span> vieta iš ${teams.length}`)
+        + `<div class="muted" style="font-size:.9rem;margin-top:6px">Tavo asmeninė vieta: ${place} iš ${ranking.length}</div>`;
+    } else
     $('myPlace').innerHTML = place===1 ? `<span class="gold">🏆 Tu – geriausias hakeris klasėje!</span>` : `Tavo vieta: <span class="gold">${place}</span> iš ${ranking.length}`;
     const acc = stats.right+stats.wrong ? Math.round(stats.right/(stats.right+stats.wrong)*100) : 0;
     $('stats').innerHTML = [['Teisingi',stats.right],['Klaidingi',stats.wrong],['Tikslumas',acc+'%'],['Įsilaužimai',stats.hacks],['Pavogta','₿ '+fmt(stats.stolen)],['Prarasta','₿ '+fmt(stats.lost)]]
@@ -1179,7 +1281,9 @@ function renderEnd(ranking, place, stats){
     const totalR=full.reduce((s,p)=>s+p.right,0), totalW=full.reduce((s,p)=>s+p.wrong,0);
     $('stats').innerHTML = [['Žaidėjai',ranking.length],['Teisingi atsakymai',totalR],['Klaidingi',totalW],['Klasės tikslumas',(totalR+totalW?Math.round(totalR/(totalR+totalW)*100):0)+'%']]
       .map(([l,v])=>`<div class="st"><b>${v}</b>${l}</div>`).join('');
-    $('rest').innerHTML = boardHTML(ranking.slice(3), null).replace(/<span class="p">(\d+)\./g,(m,n)=>`<span class="p">${+n+3}.`);
+    $('rest').innerHTML = (teams && teams.length)
+      ? `<p class="sh" style="margin:6px 0 8px">// VISI ŽAIDĖJAI</p>` + boardHTML(ranking, null)
+      : boardHTML(ranking.slice(3), null).replace(/<span class="p">(\d+)\./g,(m,n)=>`<span class="p">${+n+3}.`);
   }
 }
 

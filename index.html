@@ -179,6 +179,29 @@ input.ok{border-color:var(--g);border-width:2px}
 .ederr{color:var(--r);font-weight:700;font-size:.85rem;margin-top:6px}
 .pastebox{padding:16px 18px}
 .trow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--dim);color:#d7ffe8}
+/* KLAUSIMŲ TIPAI */
+.tfopts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tfopts .opt{justify-content:center;font-size:1.25rem;padding:22px}
+.tfopts .opt.tfT{border-color:#1f7a49}.tfopts .opt.tfF{border-color:#7a1f30}
+.typebox{display:flex;gap:10px;flex-wrap:wrap}
+.typebox input{flex:1;min-width:200px;font-size:1.2rem;padding:14px}
+.typebox input.right{border-color:var(--g);background:#063b1f}.typebox input.wrong{border-color:var(--r);background:#3b0612}
+.ordSlots{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;min-height:40px}
+.ordSlot{display:flex;align-items:center;gap:10px;padding:11px 14px;border:2px dashed var(--dim);border-radius:8px;color:#5f9c7a;font-weight:700}
+.ordSlot.fill{border-style:solid;border-color:var(--c);color:#e9fff2;background:rgba(77,225,255,.06);cursor:pointer}
+.ordSlot.right{border-color:var(--g);background:#063b1f}.ordSlot.wrong{border-color:var(--r);background:#3b0612}
+.ordSlot .k{flex:none;width:28px;height:28px;border:1px solid var(--g2);display:grid;place-items:center;border-radius:4px;color:var(--g);font-size:.85rem}
+.ordPool{display:flex;flex-wrap:wrap;gap:10px}
+.ordPool .opt{flex:1 1 200px}
+.ordPool .opt.used{opacity:.25}
+.qtypes{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
+.qtypes button{background:#00140a;border:1px solid var(--dim);color:#8fe3b3;border-radius:99px;padding:5px 11px;font-size:.78rem;font-weight:700}
+.qtypes button.on{border-color:var(--c);color:#001a20;background:var(--c)}
+.tfpick{display:flex;gap:10px;margin-top:6px}
+.tfpick label{display:flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--dim);border-radius:8px;color:#d7ffe8;cursor:pointer;margin:0;font-size:.95rem}
+.tfpick label.on{border-color:var(--g);background:rgba(57,255,138,.12)}
+.tfpick input{width:auto;accent-color:var(--g)}
+.qtag{display:inline-block;font-size:.65rem;letter-spacing:1px;padding:1px 7px;border:1px solid var(--c);color:var(--c);border-radius:99px;margin-left:8px;vertical-align:middle}
 /* KOMANDOS */
 .tchip{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:99px;font-weight:800;font-size:.8rem;border:1px solid currentColor}
 .tcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:10px}
@@ -360,7 +383,7 @@ input.ok{border-color:var(--g);border-width:2px}
   </div>
   <div class="panel pastebox">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-      <div><b class="cyan">📋 Įklijuoti iš Excel / Google Sheets</b><div class="muted" style="font-size:.8rem;margin-top:4px">Stulpeliai: Klausimas · Teisingas · Neteisingas 1 · Neteisingas 2 · Neteisingas 3 · Paaiškinimas (nebūtinas)</div></div>
+      <div><b class="cyan">📋 Įklijuoti iš Excel / Google Sheets</b><div class="muted" style="font-size:.8rem;margin-top:4px">Stulpeliai: Klausimas · Teisingas · Neteisingas 1 · Neteisingas 2 · Neteisingas 3 · Paaiškinimas · Tipas (tuščia = pasirinkimas, „tn“, „įrašyti“, „eilė“)</div></div>
       <button class="btn sm cy" id="edPasteToggle">Atidaryti</button>
     </div>
     <div id="edPasteArea" class="hidden" style="margin-top:12px">
@@ -904,7 +927,7 @@ function buildReport(full){
   $('rMeta').textContent = `Rinkinys: ${H.setTitle} · Data: ${d.toLocaleDateString('lt-LT')} ${d.toLocaleTimeString('lt-LT',{hour:'2-digit',minute:'2-digit'})} · Žaidėjai: ${n} · Trukmė: ~${mins} min · Kodas: ${H.code}`;
   renderReportTable('place', true);
   // klausimai
-  const qrows = Object.entries(H.qs).map(([qi,st])=>({q:H.questions[qi].q, a:H.questions[qi].a[0], r:st.r, w:st.w, t:st.r+st.w, acc:Math.round(st.r/(st.r+st.w)*100)}))
+  const qrows = Object.entries(H.qs).map(([qi,st])=>({q:H.questions[qi].q, a:qAnswerText(H.questions[qi]), r:st.r, w:st.w, t:st.r+st.w, acc:Math.round(st.r/(st.r+st.w)*100)}))
     .sort((a,b)=>a.acc-b.acc || b.t-a.t);
   $('qTable').innerHTML = `<tr><th>Klausimas</th><th>Teisingas atsakymas</th><th>Atsakyta</th><th>Teisingai</th><th></th></tr>` +
     (qrows.map(r=>`<tr class="${r.acc<50?'weak':''}"><td>${esc(r.q)}</td><td>${esc(r.a)}</td><td class="n">${r.t}</td><td class="n"><span class="acc ${r.acc<50?'red':'gold'}">${r.acc}%</span></td><td><div class="qbar"><div style="width:${r.acc}%"></div></div></td></tr>`).join('')
@@ -928,7 +951,7 @@ $('rCsv').onclick = ()=>{
   const lines=[head.map(q).join(';')].concat(REPORT.map(r=>[r.place,r.name,...(H.mode?[r.team]:[]),r.coins,r.right,r.wrong,r.total?r.acc:'',r.hacks,r.tries,r.stolen,r.lost,r.missed.join(' | ')].map(q).join(';')));
   lines.push('');
   lines.push(['Klausimas','Teisingas atsakymas','Atsakyta','Teisingai %'].map(q).join(';'));
-  Object.entries(H.qs).forEach(([qi,st])=>lines.push([H.questions[qi].q,H.questions[qi].a[0],st.r+st.w,Math.round(st.r/(st.r+st.w)*100)].map(q).join(';')));
+  Object.entries(H.qs).forEach(([qi,st])=>lines.push([H.questions[qi].q,qAnswerText(H.questions[qi]),st.r+st.w,Math.round(st.r/(st.r+st.w)*100)].map(q).join(';')));
   const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
   const d=H.startedAt||new Date();
@@ -1113,31 +1136,88 @@ function nextQuestion(){
   C.busy=false;
   if(C.qi>=C.deck.length){ C.deck=shuffle(myQs()); C.qi=0; }
   const q=C.deck[C.qi++];
-  const opts=shuffle(q.a.map((t,i)=>({t,ok:i===0})));
   const main=$('main');
-  main.innerHTML=`<div class="qhead">// UŽKLAUSA · ATSAKYK, KAD GAUTUM PRIEIGĄ</div><p class="qtext"></p><div class="opts"></div>`;
+  const hint={choice:'PASIRINK ATSAKYMĄ', tf:'TEISINGA AR NETEISINGA?', type:'ĮRAŠYK ATSAKYMĄ', order:'SUDĖLIOK TEISINGA EILĖS TVARKA'}[q.t||'choice'];
+  main.innerHTML=`<div class="qhead">// UŽKLAUSA · ${hint}</div><p class="qtext"></p><div class="ans"></div>`;
   main.querySelector('.qtext').textContent=q.q;
-  const box=main.querySelector('.opts');
+  const box=main.querySelector('.ans');
+  if(q.t==='tf') renderTF(box,q); else if(q.t==='type') renderType(box,q); else if(q.t==='order') renderOrder(box,q); else renderChoice(box,q);
+}
+function renderChoice(box,q){
+  const opts=shuffle(q.a.map((t,i)=>({t,ok:i===0})));
+  box.className='ans opts';
   opts.forEach((o,i)=>{ const b=document.createElement('button'); b.className='opt';
     b.innerHTML=`<span class="k">${i+1}</span><span></span>`; b.lastChild.textContent=o.t;
     b.onclick=()=>answer(b,o,opts,q); box.appendChild(b); });
+}
+function renderTF(box,q){
+  const opts=[{t:TF_T,ok:q.a[0]===TF_T},{t:TF_F,ok:q.a[0]===TF_F}];
+  box.className='ans opts tfopts';
+  opts.forEach((o,i)=>{ const b=document.createElement('button'); b.className='opt '+(i?'tfF':'tfT');
+    b.innerHTML=`<span>${i?'✗':'✔'}</span><span></span>`; b.lastChild.textContent=o.t;
+    b.onclick=()=>answer(b,o,opts,q); box.appendChild(b); });
+}
+function renderType(box,q){
+  box.className='ans';
+  box.innerHTML=`<div class="typebox"><input id="typeIn" maxlength="150" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Įrašyk atsakymą..."><button class="btn" id="typeGo">Pateikti ⏎</button></div>`;
+  const inp=$('typeIn'), go=$('typeGo');
+  const submit=()=>{ const v=inp.value.trim(); if(!v){ inp.focus(); return; }
+    inp.disabled=true; go.disabled=true;
+    const ok=q.a.some(x=>normAns(x)===normAns(v));
+    inp.classList.add(ok?'right':'wrong');
+    resolveAnswer(ok,q); };
+  go.onclick=submit; inp.onkeydown=e=>{ if(e.key==='Enter') submit(); };
+  setTimeout(()=>inp.focus(),30);
+}
+function renderOrder(box,q){
+  box.className='ans';
+  let pool=q.a.map((t,i)=>({t,i})); let tries=0;
+  do{ pool=shuffle(pool); }while(pool.every((x,k)=>x.i===k) && ++tries<10);
+  const picked=[];
+  box.innerHTML=`<div class="ordSlots"></div><div class="ordPool"></div><div style="margin-top:12px;display:flex;gap:10px;justify-content:center"><button class="btn sm" id="ordReset">↺ Iš naujo</button></div>`;
+  const slots=box.querySelector('.ordSlots'), poolEl=box.querySelector('.ordPool');
+  const draw=()=>{
+    slots.innerHTML=''; for(let k=0;k<q.a.length;k++){ const d=document.createElement('div'); const it=picked[k];
+      d.className='ordSlot'+(it?' fill':''); d.innerHTML=`<span class="k">${k+1}</span><span></span>`; d.lastChild.textContent=it?it.t:'…';
+      if(it) d.onclick=()=>{ if(box.dataset.done) return; picked.splice(k); draw(); };
+      slots.appendChild(d); }
+    poolEl.querySelectorAll('.opt').forEach(b=>b.classList.toggle('used', picked.includes(pool[+b.dataset.k])));
+  };
+  pool.forEach((it,k)=>{ const b=document.createElement('button'); b.className='opt'; b.dataset.k=k;
+    b.innerHTML=`<span></span>`; b.firstChild.textContent=it.t;
+    b.onclick=()=>{ if(box.dataset.done || picked.includes(it)) return; picked.push(it); draw();
+      if(picked.length===q.a.length){ box.dataset.done='1'; poolEl.querySelectorAll('.opt').forEach(x=>x.disabled=true); $('ordReset').disabled=true;
+        const ok=picked.every((x,k2)=>x.i===k2);
+        slots.querySelectorAll('.ordSlot').forEach((d,k2)=>d.classList.add(picked[k2].i===k2?'right':'wrong'));
+        resolveAnswer(ok,q); } };
+    poolEl.appendChild(b); });
+  $('ordReset').onclick=()=>{ if(box.dataset.done) return; picked.length=0; draw(); };
+  draw();
 }
 
 function answer(btn,o,opts,q){
   if(C.phase!=='game') return;
   const btns=[...$('main').querySelectorAll('.opt')];
   btns.forEach((b,i)=>{ b.disabled=true; if(opts[i].ok) b.classList.add('right'); });
-  cSend({t:'answer', ok:o.ok, q:myQs().indexOf(q)});
-  if(o.ok){ C.right++; setTimeout(showChests,550); return; }
-  btn.classList.add('wrong');
+  if(!o.ok) btn.classList.add('wrong');
+  resolveAnswer(o.ok,q);
+}
+function resolveAnswer(ok,q){
+  if(C.phase!=='game') return;
+  cSend({t:'answer', ok, q:myQs().indexOf(q)});
+  if(ok){ C.right++; setTimeout(showChests, q.t==='order'?900:550); return; }
   const main=$('main');
-  const d=document.createElement('div'); d.className='exp'; d.textContent = q.e ? '💡 '+q.e : '✔ Teisingas atsakymas: '+q.a[0]; main.appendChild(d);
+  const d=document.createElement('div'); d.className='exp';
+  d.textContent = (q.t==='choice'||q.t==='tf'||!q.t) ? (q.e ? '💡 '+q.e : '✔ Teisingas atsakymas: '+q.a[0])
+                : ('✔ Teisingas atsakymas: '+qAnswerText(q)) + (q.e ? '  💡 '+q.e : '');
+  main.appendChild(d);
   const l=document.createElement('div'); l.className='center'; l.style.marginTop='18px';
   l.innerHTML=`<div class="lock glitch">ACCESS DENIED</div><div class="muted">Sistema perkraunama...</div><div class="bar"><div></div></div>`;
   main.appendChild(l);
-  const bar=l.querySelector('.bar div'); bar.style.transition='width 4s linear';
+  const wait = q.t==='order'||q.t==='type' ? 5500 : 4200;
+  const bar=l.querySelector('.bar div'); bar.style.transition=`width ${(wait-200)/1000}s linear`;
   requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.width='0%'));
-  setTimeout(nextQuestion,4200);
+  setTimeout(nextQuestion,wait);
 }
 
 /* --- dėžės --- */
@@ -1289,14 +1369,27 @@ function renderEnd(ranking, place, stats, teams, myTeam){
 
 /* ===================== KLAUSIMŲ RINKINIAI ===================== */
 const BUILTIN = { id:null, builtin:true, title:'🎄 Kalėdų viktorina', questions:QUESTIONS };
+const QTYPES={choice:'Pasirinkimas', tf:'Teisinga / Neteisinga', type:'Įrašyti atsakymą', order:'Sudėlioti eilės tvarka'};
+const TF_T='Teisinga', TF_F='Neteisinga';
+/* atsakymo palyginimas: be didžiųjų raidžių, lietuviškų ženklų, skyrybos */
+function normAns(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/(\d),(\d)/g,'$1.$2').replace(/[^\p{L}\p{N}.]+/gu,' ').replace(/\.(?!\d)/g,' ').replace(/\s+/g,' ').trim(); }
+function tfValue(v){ const n=normAns(v); if(['teisinga','t','taip','tiesa','true','1'].includes(n)) return TF_T; if(['neteisinga','n','ne','netiesa','false','0'].includes(n)) return TF_F; return null; }
+function qAnswerText(q){ return q.t==='order' ? q.a.join(' → ') : q.t==='type' ? q.a.join(' / ') : q.a[0]; }
 function cleanQuestions(list){
   if(!Array.isArray(list)) return [];
   return list.slice(0,200).map(x=>{
+    const t=QTYPES[x&&x.t] ? x.t : 'choice';
     const q=String(x&&x.q||'').trim().slice(0,300);
-    const a=(Array.isArray(x&&x.a)?x.a:[]).map(v=>String(v??'').trim().slice(0,150)).filter(Boolean).slice(0,4);
+    let a=(Array.isArray(x&&x.a)?x.a:[]).map(v=>String(v??'').trim().slice(0,150)).filter(Boolean).slice(0, t==='order'?6:4);
+    if(t==='tf'){ const v=tfValue(a[0]); a = v ? [v, v===TF_T?TF_F:TF_T] : []; }
     const e=String(x&&x.e||'').trim().slice(0,400);
-    return {q,a,e};
-  }).filter(x=>x.q && x.a.length>=2 && new Set(x.a).size===x.a.length);
+    return {t,q,a,e};
+  }).filter(x=>{
+    if(!x.q) return false;
+    if(x.t==='tf') return x.a.length===2;
+    if(x.t==='type') return x.a.length>=1 && new Set(x.a.map(normAns)).size===x.a.length;
+    return x.a.length>=2 && new Set(x.a).size===x.a.length;
+  });
 }
 function kl(n){ const t=n%10, h=n%100; return n+' '+((t===1&&h!==11)?'klausimas':(t>=2&&t<=9&&!(h>=12&&h<=19))?'klausimai':'klausimų'); }
 function myQs(){ return (C.questions && C.questions.length) ? C.questions : QUESTIONS; }
@@ -1502,16 +1595,29 @@ function loadXLSX(){
     sc.onload=()=>res(window.XLSX); sc.onerror=()=>{ xlsxP=null; rej(new Error('nepavyko įkelti Excel skaitymo bibliotekos (patikrinkite internetą)')); };
     document.head.appendChild(sc); });
 }
-/* eilutės: [Klausimas, Teisingas, Neteisingas1, Neteisingas2, Neteisingas3, Paaiškinimas] */
+/* eilutės: [Klausimas, Teisingas, Neteisingas1, Neteisingas2, Neteisingas3, Paaiškinimas, Tipas(nebūtinas)]
+   Tipas: tuščia/„pasirinkimas“ | „tn“ (teisinga/neteisinga) | „įrašyti“ (stulpeliai B–E – priimami atsakymai) | „eilė“ (B–E – elementai teisinga tvarka) */
+function rowType(v){ const n=normAns(v);
+  if(!n || /^(pasirinkimas|pasirinkti|choice|testas)$/.test(n)) return 'choice';
+  if(/^(tn|t n|teisinga neteisinga|tiesa netiesa|tf)$/.test(n)) return 'tf';
+  if(/^(irasyti|irasymas|irasomas|type|tekstas)$/.test(n)) return 'type';
+  if(/^(eile|eiles tvarka|seka|order|sudeti|sudelioti)$/.test(n)) return 'order';
+  return null; }
 function rowsToQuestions(rows){
   const out=[]; let bad=0;
   rows.forEach((r,idx)=>{
     const cells=(r||[]).map(c=>String(c??'').trim());
     if(!cells.some(Boolean)) return;
     if(idx===0 && /^klausimas/i.test(cells[0])) return;
-    const [q,ok,w1,w2,w3,e]=cells;
-    if(!q || !ok || !(w1||w2||w3)){ bad++; return; }
-    out.push({q:q.slice(0,300), a:[ok,w1||'',w2||'',w3||''].map(x=>x.slice(0,150)), e:(e||'').slice(0,400)});
+    const [q,ok,w1,w2,w3,e,tp]=cells;
+    const t=rowType(tp);
+    const cut=x=>(x||'').slice(0,150);
+    if(!q || !t){ bad++; return; }
+    if(t==='tf'){ const v=tfValue(ok); if(!v){ bad++; return; } out.push({t, q:q.slice(0,300), a:[v,'','',''], e:(e||'').slice(0,400)}); return; }
+    if(t==='type'){ if(!ok){ bad++; return; } out.push({t, q:q.slice(0,300), a:[ok,w1,w2,w3].map(cut), e:(e||'').slice(0,400)}); return; }
+    if(t==='order'){ const items=[ok,w1,w2,w3].filter(Boolean); if(items.length<2){ bad++; return; } out.push({t, q:q.slice(0,300), a:[ok,w1,w2,w3].map(cut), e:(e||'').slice(0,400)}); return; }
+    if(!ok || !(w1||w2||w3)){ bad++; return; }
+    out.push({t:'choice', q:q.slice(0,300), a:[ok,w1||'',w2||'',w3||''].map(cut), e:(e||'').slice(0,400)});
   });
   return {qs:out, bad};
 }
@@ -1531,7 +1637,7 @@ $('tdFile').onchange=async ev=>{
     const wb=X.read(new Uint8Array(await f.arrayBuffer()), {type:'array'});
     const ws=wb.Sheets[wb.SheetNames[0]];
     const rows=X.utils.sheet_to_json(ws,{header:1, raw:false, defval:''});
-    const {qs,bad}=rowsToQuestions(rows);
+    const res=rowsToQuestions(rows), bad=res.bad, qs=cleanQuestions(res.qs.map(x=>({...x,a:x.a.filter(Boolean)})));
     if(!qs.length) throw new Error('nerasta tinkamų eilučių. Stulpeliai turi būti: Klausimas | Teisingas | Neteisingas 1 | Neteisingas 2 | Neteisingas 3 | Paaiškinimas');
     $('tdMsg').textContent='';
     openEditor({id:null, title:baseName(f.name), shared:false, questions:qs.slice(0,200)});
@@ -1542,12 +1648,14 @@ $('tdTpl').onclick=async()=>{
   try{
     const X=await loadXLSX();
     const ws=X.utils.aoa_to_sheet([
-      ['Klausimas','Teisingas atsakymas','Neteisingas 1','Neteisingas 2','Neteisingas 3','Paaiškinimas (nebūtinas)'],
-      ['Kiek bus 7 × 8?','56','54','64','48','7 × 8 = 56'],
-      ['Kokia Lietuvos sostinė?','Vilnius','Kaunas','Klaipėda','',''],
-      ['Ar Žemė sukasi aplink Saulę?','Taip','Ne','','','']
+      ['Klausimas','Teisingas atsakymas','Neteisingas 1','Neteisingas 2','Neteisingas 3','Paaiškinimas (nebūtinas)','Tipas (nebūtinas)'],
+      ['Kiek bus 7 × 8?','56','54','64','48','7 × 8 = 56',''],
+      ['Kokia Lietuvos sostinė?','Vilnius','Kaunas','Klaipėda','','',''],
+      ['Žemė sukasi aplink Saulę.','Teisinga','','','','','tn'],
+      ['Koks didžiausias Lietuvos ežeras?','Drūkšiai','Drūkšių','','','Įrašomas atsakymas: B–E stulpeliai – visi priimami variantai','įrašyti'],
+      ['Sudėliok nuo mažiausio iki didžiausio','1/4','1/3','1/2','3/4','Eilė: B–E stulpeliai – elementai TEISINGA tvarka','eilė']
     ]);
-    ws['!cols']=[{wch:45},{wch:22},{wch:18},{wch:18},{wch:18},{wch:35}];
+    ws['!cols']=[{wch:45},{wch:22},{wch:18},{wch:18},{wch:18},{wch:40},{wch:16}];
     const wb=X.utils.book_new(); X.utils.book_append_sheet(wb, ws, 'Klausimai');
     X.writeFile(wb, 'klausimu_sablonas.xlsx');
   }catch(e){ $('tdMsg').textContent='Nepavyko sukurti šablono: '+(e.message||e); }
@@ -1558,14 +1666,30 @@ $('tdAdmin').onclick=()=>openAdmin();
 
 /* ---------- redaktorius ---------- */
 let ED=null;
-function blankQ(){ return {q:'',a:['','','',''],e:''}; }
+function blankQ(t){ return {t:t||'choice', q:'', a:['','','','','',''], e:''}; }
 function openEditor(set){
   ED={ id:set.id||null, title:set.title||'', shared:!!set.shared,
-       questions:(set.questions||[]).map(x=>({q:x.q||'', a:[0,1,2,3].map(i=>(x.a||[])[i]||''), e:x.e||''})) };
+       questions:(set.questions||[]).map(x=>({t:QTYPES[x.t]?x.t:'choice', q:x.q||'', a:[0,1,2,3,4,5].map(i=>(x.a||[])[i]||''), e:x.e||''})) };
   if(!ED.questions.length) ED.questions.push(blankQ());
   $('edTitle').value=ED.title; $('edShared').checked=ED.shared; $('edErr').textContent='';
   $('edPasteArea').classList.add('hidden'); $('edPasteToggle').textContent='Atidaryti'; $('edPaste').value=''; $('edPasteMsg').textContent='';
   show('tEdit'); renderEditor();
+}
+function ansEditorHTML(x){
+  if(x.t==='tf') return `<div class="flab">TEISINGAS ATSAKYMAS</div><div class="tfpick">
+      <label class="${x.a[0]!==TF_F?'on':''}"><input type="radio" name="tf" value="${TF_T}" ${x.a[0]!==TF_F?'checked':''}> ✔ Teisinga</label>
+      <label class="${x.a[0]===TF_F?'on':''}"><input type="radio" name="tf" value="${TF_F}" ${x.a[0]===TF_F?'checked':''}> ✗ Neteisinga</label></div>`;
+  if(x.t==='type') return `<div class="flab">PRIIMAMI ATSAKYMAI · <span class="cyan">užtenka vieno</span>; didžiosios raidės ir lietuviški ženklai nesvarbūs</div>
+      <div class="ansgrid">${[0,1,2,3].map(k=>`<input ${k===0?'class="ok"':''} maxlength="150" data-f="a${k}" placeholder="${k===0?'✔ Teisingas atsakymas':'✔ Kitas priimamas variantas (nebūtinas)'}">`).join('')}</div>`;
+  if(x.t==='order') return `<div class="flab">ELEMENTAI <span class="cyan">TEISINGA TVARKA</span> · bent 2, daugiausia 6 (mokiniams bus sumaišyti)</div>
+      <div class="ansgrid">${[0,1,2,3,4,5].map(k=>`<input maxlength="150" data-f="a${k}" placeholder="${k+1}.${k<2?'':' (nebūtinas)'}">`).join('')}</div>`;
+  return `<div class="flab">ATSAKYMAI · <span class="cyan">pirmas – teisingas</span>, kiti – neteisingi (užtenka bent vieno)</div>
+      <div class="ansgrid">
+        <input class="ok" maxlength="150" data-f="a0" placeholder="✔ Teisingas atsakymas">
+        <input maxlength="150" data-f="a1" placeholder="✗ Neteisingas 1">
+        <input maxlength="150" data-f="a2" placeholder="✗ Neteisingas 2 (nebūtinas)">
+        <input maxlength="150" data-f="a3" placeholder="✗ Neteisingas 3 (nebūtinas)">
+      </div>`;
 }
 function renderEditor(){
   const list=$('edList'); list.innerHTML='';
@@ -1573,22 +1697,25 @@ function renderEditor(){
     const c=document.createElement('div'); c.className='panel qcard'; c.dataset.i=i;
     c.innerHTML=`<div class="qtools"><button title="Aukštyn" data-a="up">↑</button><button title="Žemyn" data-a="down">↓</button><button title="Ištrinti" class="x" data-a="del">✕</button></div>
       <div><span class="qn">${i+1}.</span><span class="flab">KLAUSIMAS</span></div>
-      <textarea rows="2" maxlength="300" data-f="q" placeholder="Įrašykite klausimą"></textarea>
-      <div class="flab">ATSAKYMAI · <span class="cyan">pirmas – teisingas</span>, kiti – neteisingi (užtenka bent vieno)</div>
-      <div class="ansgrid">
-        <input class="ok" maxlength="150" data-f="a0" placeholder="✔ Teisingas atsakymas">
-        <input maxlength="150" data-f="a1" placeholder="✗ Neteisingas 1">
-        <input maxlength="150" data-f="a2" placeholder="✗ Neteisingas 2 (nebūtinas)">
-        <input maxlength="150" data-f="a3" placeholder="✗ Neteisingas 3 (nebūtinas)">
-      </div>
+      <div class="qtypes">${Object.entries({choice:'🔘 Pasirinkimas',tf:'✔✗ Teisinga/Neteisinga',type:'⌨ Įrašyti',order:'🔢 Eilės tvarka'}).map(([k,l])=>`<button data-t="${k}" class="${x.t===k?'on':''}">${l}</button>`).join('')}</div>
+      <textarea rows="2" maxlength="300" data-f="q" placeholder="${x.t==='tf'?'Įrašykite teiginį, pvz. „Vilnius yra Lietuvos sostinė.“':'Įrašykite klausimą'}"></textarea>
+      <div class="ansArea">${ansEditorHTML(x)}</div>
       <input maxlength="400" data-f="e" placeholder="💡 Paaiškinimas, rodomas suklydus (nebūtinas)" style="margin-top:8px">
       <div class="ederr"></div>`;
     c.querySelector('[data-f=q]').value=x.q;
-    [0,1,2,3].forEach(k=>c.querySelector(`[data-f=a${k}]`).value=x.a[k]);
+    c.querySelectorAll('.ansArea [data-f]').forEach(inp=>inp.value=x.a[+inp.dataset.f.slice(1)]||'');
     c.querySelector('[data-f=e]').value=x.e;
+    const clr=()=>{ c.classList.remove('bad'); c.querySelector('.ederr').textContent=''; };
     c.querySelectorAll('[data-f]').forEach(inp=>inp.oninput=()=>{
-      const f=inp.dataset.f; if(f==='q') x.q=inp.value; else if(f==='e') x.e=inp.value; else x.a[+f.slice(1)]=inp.value;
-      c.classList.remove('bad'); c.querySelector('.ederr').textContent='';
+      const f=inp.dataset.f; if(f==='q') x.q=inp.value; else if(f==='e') x.e=inp.value; else x.a[+f.slice(1)]=inp.value; clr(); });
+    c.querySelectorAll('input[name=tf]').forEach(r=>{ r.name='tf'+i; r.onchange=()=>{ x.a[0]=r.value; c.querySelectorAll('.tfpick label').forEach(l=>l.classList.toggle('on', l.querySelector('input').checked)); clr(); }; });
+    if(x.t==='tf' && x.a[0]!==TF_F) x.a[0]=TF_T;
+    c.querySelectorAll('.qtypes button').forEach(b=>b.onclick=()=>{
+      if(x.t===b.dataset.t) return;
+      const prev=x.t; x.t=b.dataset.t;
+      if(x.t==='tf'){ x.a[0]=tfValue(x.a[0])||TF_T; }
+      else if(prev==='tf'){ x.a[0]=''; }
+      renderEditor();
     });
     c.querySelectorAll('.qtools button').forEach(bt=>bt.onclick=()=>{
       const a=bt.dataset.a, Q=ED.questions;
@@ -1600,7 +1727,7 @@ function renderEditor(){
     list.appendChild(c);
   });
 }
-$('edAdd').onclick=()=>{ if(ED.questions.length>=200){ $('edErr').textContent='Daugiausia 200 klausimų.'; return; } ED.questions.push(blankQ()); renderEditor();
+$('edAdd').onclick=()=>{ if(ED.questions.length>=200){ $('edErr').textContent='Daugiausia 200 klausimų.'; return; } const prevQ=ED.questions[ED.questions.length-1]; ED.questions.push(blankQ(prevQ&&prevQ.t)); renderEditor();
   const last=$('edList').lastElementChild; last.scrollIntoView({behavior:'smooth',block:'center'}); last.querySelector('textarea').focus(); };
 $('edTitle').oninput=()=>{ ED.title=$('edTitle').value; };
 $('edShared').onchange=()=>{ ED.shared=$('edShared').checked; };
@@ -1609,9 +1736,9 @@ $('edPasteToggle').onclick=()=>{ const a=$('edPasteArea'); a.classList.toggle('h
 $('edPasteGo').onclick=()=>{
   const rows=$('edPaste').value.split(/\r?\n/).filter(l=>l.trim()).map(line=>(line.includes('\t')?line.split('\t'):line.split(';')).map(c=>c.trim().replace(/^"(.*)"$/,'$1')));
   const res=rowsToQuestions(rows); let added=0, bad=res.bad;
-  const empty=ED.questions.length===1 && !ED.questions[0].q && !ED.questions[0].a.some(Boolean);
+  const empty=ED.questions.length===1 && !ED.questions[0].q && !ED.questions[0].a.some(v=>v && v!==TF_T);
   if(empty && res.qs.length) ED.questions=[];
-  res.qs.forEach(x=>{ if(ED.questions.length>=200){ bad++; return; } ED.questions.push(x); added++; });
+  res.qs.forEach(x=>{ if(ED.questions.length>=200){ bad++; return; } ED.questions.push({t:x.t, q:x.q, a:[0,1,2,3,4,5].map(i=>x.a[i]||''), e:x.e}); added++; });
   $('edPasteMsg').textContent=`Pridėta: ${added}`+(bad?` · praleista eilučių: ${bad} (trūko klausimo, teisingo ar bent vieno neteisingo atsakymo)`:'');
   if(added){ $('edPaste').value=''; renderEditor(); }
 };
@@ -1622,14 +1749,26 @@ $('edSave').onclick=async()=>{
   let firstBad=null; const out=[];
   ED.questions.forEach((x,i)=>{
     const card=$('edList').children[i];
-    const q=x.q.trim(), a=x.a.map(v=>v.trim()), wrong=a.slice(1).filter(Boolean);
-    const blank = !q && !a.some(Boolean) && !x.e.trim();
+    const q=x.q.trim(), a=x.a.map(v=>(v||'').trim()), e=x.e.trim();
+    const blank = !q && !e && (x.t==='tf' || !a.some(Boolean));
     if(blank) return;
-    let err='';
-    if(!q) err='Trūksta klausimo.'; else if(!a[0]) err='Trūksta teisingo atsakymo.'; else if(!wrong.length) err='Reikia bent vieno neteisingo atsakymo.';
-    else if(new Set([a[0],...wrong]).size!==wrong.length+1) err='Atsakymai neturi kartotis.';
+    let err='', item=null;
+    if(!q) err='Trūksta klausimo.';
+    else if(x.t==='tf'){ item={t:'tf', q, a:[a[0]===TF_F?TF_F:TF_T, a[0]===TF_F?TF_T:TF_F], e}; }
+    else if(x.t==='type'){ const acc=a.slice(0,4).filter(Boolean);
+      if(!acc.length) err='Įrašykite bent vieną teisingą atsakymą.';
+      else if(new Set(acc.map(normAns)).size!==acc.length) err='Priimami atsakymai kartojasi.';
+      else item={t:'type', q, a:acc, e}; }
+    else if(x.t==='order'){ const it=a.slice(0,6).filter(Boolean);
+      if(it.length<2) err='Reikia bent 2 elementų.';
+      else if(new Set(it).size!==it.length) err='Elementai neturi kartotis.';
+      else item={t:'order', q, a:it, e}; }
+    else { const wrong=a.slice(1,4).filter(Boolean);
+      if(!a[0]) err='Trūksta teisingo atsakymo.'; else if(!wrong.length) err='Reikia bent vieno neteisingo atsakymo.';
+      else if(new Set([a[0],...wrong]).size!==wrong.length+1) err='Atsakymai neturi kartotis.';
+      else item={t:'choice', q, a:[a[0],...wrong], e}; }
     if(err){ card.classList.add('bad'); card.querySelector('.ederr').textContent=err; if(!firstBad) firstBad=card; }
-    else out.push({q, a:[a[0],...wrong], e:x.e.trim()});
+    else out.push(item);
   });
   if(firstBad){ $('edErr').textContent='Pataisykite raudonai pažymėtus klausimus.'; firstBad.scrollIntoView({behavior:'smooth',block:'center'}); return; }
   if(!out.length){ $('edErr').textContent='Pridėkite bent vieną klausimą.'; return; }

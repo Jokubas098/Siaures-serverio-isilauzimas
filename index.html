@@ -179,6 +179,13 @@ input.ok{border-color:var(--g);border-width:2px}
 .ederr{color:var(--r);font-weight:700;font-size:.85rem;margin-top:6px}
 .pastebox{padding:16px 18px}
 .trow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--dim);color:#d7ffe8}
+/* PRADŽIOS EKRANAS */
+.joinBig{margin-top:26px;padding:24px 22px;border:2px solid var(--g);border-radius:14px;background:rgba(0,20,10,.7);box-shadow:0 0 24px rgba(57,255,138,.25),inset 0 0 24px rgba(57,255,138,.06)}
+.joinBig input.code{font-size:2.6rem;padding:14px 10px;letter-spacing:14px}
+.joinBig #bJoin{width:100%;margin-top:14px;padding:18px;font-size:1.3rem;letter-spacing:2px}
+.teachTop{position:absolute;top:16px;right:16px;z-index:5;background:rgba(0,20,10,.85);border:1px solid var(--g2);color:#8fe3b3;border-radius:8px;padding:8px 14px;font-size:.85rem;font-weight:700;transition:.15s}
+.teachTop:hover{border-color:var(--c);color:var(--c);box-shadow:0 0 14px rgba(77,225,255,.4)}
+@media(max-width:560px){.teachTop{top:10px;right:10px;padding:6px 10px;font-size:.75rem}.joinBig input.code{font-size:2rem;letter-spacing:10px}}
 /* PRISIJUNGIMO EKRANAS SU EFEKTAIS */
 .tlWrap{flex:1;display:grid;grid-template-columns:1fr minmax(300px,360px) 1fr;gap:22px;align-items:center;min-height:calc(100vh - 32px)}
 .tlWrap .tbox{max-width:360px;padding:22px 22px 18px;margin:0;justify-self:center}
@@ -252,6 +259,7 @@ input.ok{border-color:var(--g);border-width:2px}
 <canvas id="rain"></canvas>
 <div id="toast"></div>
 <div class="wrap">
+<button id="bHost" class="teachTop" title="Mokytojams: sukurti žaidimą">👩‍🏫 Mokytojams</button>
 
 <!-- ================= HOME ================= -->
 <section id="home" class="box panel">
@@ -259,9 +267,11 @@ input.ok{border-color:var(--g);border-width:2px}
   <h1 class="glow">💻 SERVERIO<br>ĮSILAUŽIMAS</h1>
   <p class="muted" style="line-height:1.6">Viktorina visai klasei. Atsakyk į klausimus, rink ₿ KriptoCoin<br>ir įsilaužk į klasės draugus, atspėjęs jų slaptažodį!</p>
   <div style="margin-top:18px"><button class="btn sm cy" id="bRules">📖 Žaidimo taisyklės</button></div>
-  <div class="home-btns">
-    <button id="bJoin"><span class="ic">🧑‍💻</span>PRISIJUNGTI<br><span class="muted" style="font-size:.8rem">mokiniams</span></button>
-    <button id="bHost"><span class="ic">🖥️</span>SUKURTI ŽAIDIMĄ<br><span class="muted" style="font-size:.8rem">mokytojui</span></button>
+  <div class="joinBig">
+    <label for="homeCode" style="text-align:center;margin:0 0 8px">&gt; ĮVESK ŽAIDIMO KODĄ</label>
+    <input id="homeCode" class="code" maxlength="5" inputmode="numeric" placeholder="00000" autocomplete="off">
+    <button class="btn" id="bJoin">🧑‍💻 PRISIJUNGTI</button>
+    <div class="err" id="homeErr" style="min-height:1.1em;margin-top:8px"></div>
   </div>
 </section>
 
@@ -557,7 +567,7 @@ const fmt = n => Number(n||0).toLocaleString('lt-LT');
 const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const mmss = s => `${Math.floor(Math.max(0,s)/60)}:${String(Math.max(0,s)%60).padStart(2,'0')}`;
 const SCREENS = ["home","rulesBox","tLogin","tDash","tEdit","tAdmin","join","wait","play","hLobby","hGame","end"];
-function show(id){ SCREENS.forEach(s=>$(s).classList.toggle('hidden', s!==id)); window.scrollTo(0,0); }
+function show(id){ SCREENS.forEach(s=>$(s).classList.toggle('hidden', s!==id)); const tb=$('bHost'); if(tb) tb.classList.toggle('hidden', id!=='home'); window.scrollTo(0,0); }
 let toastT;
 function toast(msg,good){ const t=$('toast'); t.textContent=msg; t.className=good?'good show':'show'; clearTimeout(toastT); toastT=setTimeout(()=>t.className=good?'good':'',3400); }
 const ss = { get(k){ try{return JSON.parse(sessionStorage.getItem(k));}catch(e){return null;} }, set(k,v){ try{sessionStorage.setItem(k,JSON.stringify(v));}catch(e){} }, del(k){ try{sessionStorage.removeItem(k);}catch(e){} } };
@@ -583,7 +593,15 @@ const RULES_HTML = `<div class="rules"><h3>// TAISYKLĖS</h3><ol>
 document.querySelectorAll('.rulesHere').forEach(el=>el.innerHTML=RULES_HTML);
 $('bRules').onclick = ()=> show('rulesBox');
 $('rulesBack').onclick = ()=> show('home');
-$('bJoin').onclick = ()=>{ initJoin(); show('join'); };
+$('bJoin').onclick = ()=>{
+  const code=$('homeCode').value.replace(/\D/g,'');
+  if(code && code.length!==5){ $('homeErr').textContent='Kodas turi būti iš 5 skaitmenų.'; return; }
+  $('homeErr').textContent='';
+  initJoin(); if(code) $('jCode').value=code; show('join');
+  setTimeout(()=>{ (code ? $('jName') : $('jCode')).focus(); }, 50);
+};
+$('homeCode').onkeydown=e=>{ if(e.key==='Enter') $('bJoin').click(); };
+$('homeCode').oninput=()=>{ $('homeCode').value=$('homeCode').value.replace(/\D/g,'').slice(0,5); };
 $('bHost').onclick = ()=>{ if(noPeer()) return; if(DB) openTeacher(); else startHost(BUILTIN); };
 $('jBack').onclick = ()=> show('home');
 $('eHome').onclick = ()=> { location.href = location.pathname; };

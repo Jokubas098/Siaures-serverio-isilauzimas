@@ -179,6 +179,10 @@ input.ok{border-color:var(--g);border-width:2px}
 .ederr{color:var(--r);font-weight:700;font-size:.85rem;margin-top:6px}
 .pastebox{padding:16px 18px}
 .trow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 10px;border-bottom:1px solid var(--dim);color:#d7ffe8}
+/* X2 */
+.x2on{display:inline-block;margin:4px 0 0;padding:6px 14px;border:1px solid var(--gold);border-radius:99px;color:var(--gold);font-weight:800;font-size:.9rem;box-shadow:0 0 14px rgba(255,216,77,.35);animation:blink 1.2s infinite}
+.x2tag{color:var(--gold);font-size:.8rem}
+.x2sum{font-family:'Orbitron';font-size:1.15rem;color:var(--gold);text-shadow:0 0 10px rgba(255,216,77,.7);margin-top:2px}
 /* PRADŽIOS EKRANAS */
 .joinBig{margin-top:26px;padding:24px 22px;border:2px solid var(--g);border-radius:14px;background:rgba(0,20,10,.7);box-shadow:0 0 24px rgba(57,255,138,.25),inset 0 0 24px rgba(57,255,138,.06)}
 .joinBig input.code{font-size:2.6rem;padding:14px 10px;letter-spacing:14px}
@@ -1055,24 +1059,29 @@ function showChests(){
   const main=$('main');
   main.innerHTML=`<div class="center"><div class="qhead">// PRIEIGA SUTEIKTA ✔</div>
     <p class="title2 glow">Pasirink serverio dėžę</p>
+    ${C.double?'<div class="x2on">⚡ x2 AKTYVUS – kitas ₿ lobis bus padvigubintas!</div>':''}
     <div class="chests">${[0,1,2].map(i=>`<button class="chest"><span class="ic">🗄️</span><span class="rv">SRV-0${i+1}</span></button>`).join('')}</div></div>`;
   const chests=[...main.querySelectorAll('.chest')];
   chests.forEach((c,i)=>c.onclick=()=>{
     const dbl=C.double;
-    chests.forEach((x,j)=>{ x.disabled=true; reveal(x,rewards[j],dbl); if(j!==i) x.classList.add('dim'); });
+    chests.forEach((x,j)=>{ x.disabled=true; reveal(x,rewards[j],dbl && j===i); if(j!==i) x.classList.add('dim'); });
     applyReward(rewards[i]);
   });
 }
 function reveal(el,r,dbl){
   el.classList.add(r.type==='virus'||r.type==='none'?'bad':'open');
   el.querySelector('.ic').textContent=r.ic;
-  el.querySelector('.rv').textContent = r.type==='coins' ? `+${fmt(r.amt*(dbl?2:1))}` : r.txt;
+  const rv=el.querySelector('.rv');
+  if(r.type==='coins' && dbl) rv.innerHTML=`+${fmt(r.amt)} <span class="x2tag">⚡×2</span><div class="x2sum">= +${fmt(r.amt*2)}</div>`;
+  else rv.textContent = r.type==='coins' ? `+${fmt(r.amt)}` : r.txt;
 }
 function applyReward(r){
   const cont=(ms=1300)=>setTimeout(nextQuestion,ms);
-  if(r.type==='coins'){ let amt=r.amt; if(C.double){amt*=2; C.double=false;} C.coins+=amt; cSend({t:'gain',amt});
-    addLog($('pLog'),`+₿ ${fmt(amt)} iš serverio dėžės`,'good'); renderClient(); cont(); }
-  else if(r.type==='x2'){ C.double=true; renderClient(); cont(); }
+  if(r.type==='coins'){ let amt=r.amt, was2=C.double; if(was2){amt*=2; C.double=false;} C.coins+=amt; cSend({t:'gain',amt});
+    addLog($('pLog'), was2 ? `+₿ ${fmt(amt)} (⚡ x2: ${fmt(r.amt)} × 2)` : `+₿ ${fmt(amt)} iš serverio dėžės`,'good');
+    if(was2) toast(`⚡ Dvigubas lobis! ${fmt(r.amt)} × 2 = +₿ ${fmt(amt)}`, true);
+    renderClient(); cont(was2?2000:1300); }
+  else if(r.type==='x2'){ C.double=true; addLog($('pLog'),'⚡ x2 įjungtas – kitas ₿ lobis bus dvigubas','good'); renderClient(); cont(); }
   else if(r.type==='shield'){ C.shield=true; cSend({t:'shield'}); addLog($('pLog'),'🛡️ Ugniasienė įjungta – atlaikys vieną įsilaužimą','good'); renderClient(); cont(); }
   else if(r.type==='virus'){ cSend({t:'virus'}); flash(); cont(); }
   else if(r.type==='none'){ cont(); }

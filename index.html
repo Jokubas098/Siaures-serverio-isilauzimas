@@ -204,6 +204,12 @@ input.ok{border-color:var(--g);border-width:2px}
 .tfpick label.on{border-color:var(--g);background:rgba(57,255,138,.12)}
 .tfpick input{width:auto;accent-color:var(--g)}
 .qtag{display:inline-block;font-size:.65rem;letter-spacing:1px;padding:1px 7px;border:1px solid var(--c);color:var(--c);border-radius:99px;margin-left:8px;vertical-align:middle}
+/* RAŠYMO EFEKTAS */
+.tcur{display:inline-block;width:.55em;height:1.05em;background:var(--g);margin-left:3px;vertical-align:-.15em;box-shadow:0 0 8px var(--g);animation:tblink .7s steps(1) infinite}
+@keyframes tblink{50%{opacity:0}}
+.ans.reveal > *, .ans.reveal.opts > .opt{animation:ansIn .32s ease-out both;animation-delay:var(--d,0s)}
+@keyframes ansIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){ .tcur{animation:none} .ans.reveal > *{animation:none} }
 /* TELEFONO HUD */
 @media(max-width:560px){
   .hud{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:10px 12px}
@@ -1167,6 +1173,21 @@ function renderClient(){
       (C.list.findIndex(p=>p.id===C.me)>=12 ? `<div class="muted" style="margin-top:6px">Tavo vieta: ${C.list.findIndex(p=>p.id===C.me)+1}</div>` : '');
   }
 }
+/* rašomosios mašinėlės efektas: grąžina trukmę ms; visada ≤ maxMs */
+function typeText(el, text, maxMs=900){
+  text=String(text); el.dataset.full=text; el.setAttribute('aria-label', text);
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){ el.textContent=text; return 0; }
+  const chars=[...text]; const step=Math.max(8, Math.min(32, maxMs/Math.max(1,chars.length)));
+  const perTick=Math.max(1, Math.ceil(chars.length/(maxMs/step)));
+  const token=(el._tt=(el._tt||0)+1); let i=0;
+  const span=document.createElement('span'), cur=document.createElement('span'); cur.className='tcur';
+  el.textContent=''; el.append(span,cur);
+  const tick=()=>{ if(el._tt!==token || !el.isConnected) return;
+    i=Math.min(chars.length, i+perTick); span.textContent=chars.slice(0,i).join('');
+    if(i<chars.length) setTimeout(tick, step); else setTimeout(()=>{ if(el._tt===token) cur.remove(); }, 600); };
+  tick();
+  return Math.min(maxMs, Math.ceil(chars.length/perTick)*step);
+}
 function flash(){ const m=$('main'); m.classList.remove('glitch'); void m.offsetWidth; m.classList.add('glitch'); }
 
 /* --- klausimas --- */
@@ -1178,14 +1199,15 @@ function nextQuestion(){
   const main=$('main');
   const hint={choice:'PASIRINK ATSAKYMĄ', tf:'TEISINGA AR NETEISINGA?', type:'ĮRAŠYK ATSAKYMĄ', order:'SUDĖLIOK TEISINGA EILĖS TVARKA', multi:`PAŽYMĖK VISUS TEISINGUS (${q.n})`, match:'SUJUNK POROMIS', num:'ĮRAŠYK SKAIČIŲ', group:'SUSKIRSTYK Į GRUPES'}[q.t||'choice'];
   main.innerHTML=`<div class="qhead">// UŽKLAUSA · ${hint}</div><p class="qtext"></p><div class="ans"></div>`;
-  main.querySelector('.qtext').textContent=q.q;
+  const dur=typeText(main.querySelector('.qtext'), q.q);
   const box=main.querySelector('.ans');
+  box.style.setProperty('--d', Math.round(dur*0.85)+'ms'); box.classList.add('reveal');
   const R={tf:renderTF, type:renderType, order:renderOrder, multi:renderMulti, match:renderMatch, num:renderNum, group:renderGroup}[q.t] || renderChoice;
   R(box,q);
 }
 function checkBar(box, label){ const d=document.createElement('div'); d.className='chkbar'; d.innerHTML=`<button class="btn" disabled>${label||'✔ Tikrinti'}</button><span class="muted" style="font-size:.85rem"></span>`; box.appendChild(d); return {btn:d.firstChild, note:d.lastChild}; }
 function renderMulti(box,q){
-  box.className='ans';
+  box.className='ans reveal';
   const items=shuffle(q.a.map((t,i)=>({t,ok:i<q.n,on:false})));
   const grid=document.createElement('div'); grid.className='mopts'; box.appendChild(grid);
   const cb=checkBar(box);
@@ -1200,7 +1222,7 @@ function renderMulti(box,q){
     resolveAnswer(ok,q); };
 }
 function renderMatch(box,q){
-  box.className='ans';
+  box.className='ans reveal';
   const rights=shuffle(q.b.map((t,i)=>({t,i})));
   const sels=[];
   q.a.forEach((l,i)=>{ const r=document.createElement('div'); r.className='mrow';
@@ -1217,7 +1239,7 @@ function renderMatch(box,q){
     resolveAnswer(ok,q); };
 }
 function renderNum(box,q){
-  box.className='ans';
+  box.className='ans reveal';
   const tol=String(q.tol||'').trim() && parseNum(q.tol)!==0 ? ` (leistina paklaida ± ${q.tol})` : '';
   box.innerHTML=`<div class="typebox numbox"><input id="typeIn" inputmode="decimal" maxlength="30" autocomplete="off" placeholder="Įrašyk skaičių..."><button class="btn" id="typeGo">Pateikti ⏎</button></div>${tol?`<div class="muted" style="margin-top:8px;font-size:.85rem">${esc(tol)}</div>`:''}`;
   const inp=$('typeIn'), go=$('typeGo');
@@ -1227,7 +1249,7 @@ function renderNum(box,q){
   setTimeout(()=>inp.focus(),30);
 }
 function renderGroup(box,q){
-  box.className='ans';
+  box.className='ans reveal';
   const items=shuffle(q.a.map((t,i)=>({t,k:q.k[i],sel:null})));
   items.forEach(it=>{ const r=document.createElement('div'); r.className='grow2';
     r.innerHTML=`<span class="it"></span><span class="gb">${q.g.map((g,j)=>`<button data-j="${j}"></button>`).join('')}</span>`;
@@ -1244,20 +1266,20 @@ function renderGroup(box,q){
 }
 function renderChoice(box,q){
   const opts=shuffle(q.a.map((t,i)=>({t,ok:i===0})));
-  box.className='ans opts';
+  box.className='ans opts reveal';
   opts.forEach((o,i)=>{ const b=document.createElement('button'); b.className='opt';
     b.innerHTML=`<span class="k">${i+1}</span><span></span>`; b.lastChild.textContent=o.t;
     b.onclick=()=>answer(b,o,opts,q); box.appendChild(b); });
 }
 function renderTF(box,q){
   const opts=[{t:TF_T,ok:q.a[0]===TF_T},{t:TF_F,ok:q.a[0]===TF_F}];
-  box.className='ans opts tfopts';
+  box.className='ans opts tfopts reveal';
   opts.forEach((o,i)=>{ const b=document.createElement('button'); b.className='opt '+(i?'tfF':'tfT');
     b.innerHTML=`<span>${i?'✗':'✔'}</span><span></span>`; b.lastChild.textContent=o.t;
     b.onclick=()=>answer(b,o,opts,q); box.appendChild(b); });
 }
 function renderType(box,q){
-  box.className='ans';
+  box.className='ans reveal';
   box.innerHTML=`<div class="typebox"><input id="typeIn" maxlength="150" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Įrašyk atsakymą..."><button class="btn" id="typeGo">Pateikti ⏎</button></div>`;
   const inp=$('typeIn'), go=$('typeGo');
   const submit=()=>{ const v=inp.value.trim(); if(!v){ inp.focus(); return; }
@@ -1269,7 +1291,7 @@ function renderType(box,q){
   setTimeout(()=>inp.focus(),30);
 }
 function renderOrder(box,q){
-  box.className='ans';
+  box.className='ans reveal';
   let pool=q.a.map((t,i)=>({t,i})); let tries=0;
   do{ pool=shuffle(pool); }while(pool.every((x,k)=>x.i===k) && ++tries<10);
   const picked=[];
@@ -1338,9 +1360,10 @@ function showChests(){
   const rewards=[rollReward(),rollReward(),rollReward()];
   const main=$('main');
   main.innerHTML=`<div class="center"><div class="qhead">// PRIEIGA SUTEIKTA ✔</div>
-    <p class="title2 glow">Pasirink serverio dėžę</p>
+    <p class="title2 glow" id="chestTitle"></p>
     ${C.double?'<div class="x2on">⚡ x2 AKTYVUS – kitas ₿ lobis bus padvigubintas!</div>':''}
     <div class="chests">${[0,1,2].map(i=>`<button class="chest"><span class="ic">🗄️</span><span class="rv">SRV-0${i+1}</span></button>`).join('')}</div></div>`;
+  typeText($('chestTitle'),'Pasirink serverio dėžę',500);
   const chests=[...main.querySelectorAll('.chest')];
   chests.forEach((c,i)=>c.onclick=()=>{
     const dbl=C.double;

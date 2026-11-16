@@ -204,6 +204,34 @@ input.ok{border-color:var(--g);border-width:2px}
 .tfpick label.on{border-color:var(--g);background:rgba(57,255,138,.12)}
 .tfpick input{width:auto;accent-color:var(--g)}
 .qtag{display:inline-block;font-size:.65rem;letter-spacing:1px;padding:1px 7px;border:1px solid var(--c);color:var(--c);border-radius:99px;margin-left:8px;vertical-align:middle}
+/* TEMPIMAS */
+.dchip{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--c);border-radius:8px;background:rgba(77,225,255,.08);color:#e9fff2;font-weight:700;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;max-width:100%;overflow-wrap:anywhere}
+.dchip:hover{box-shadow:0 0 10px rgba(77,225,255,.4)}
+.dchip.sel,.srow.sel{box-shadow:0 0 16px var(--c);background:rgba(77,225,255,.25);border-color:var(--c)}
+.dsrc{opacity:.3}
+.dghost{position:fixed!important;left:0;top:0;margin:0!important;pointer-events:none;z-index:300;opacity:.95;cursor:grabbing;box-shadow:0 10px 26px rgba(0,0,0,.65),0 0 18px var(--c)!important;transition:none!important;animation:none!important}
+.dz.dover{border-color:var(--gold)!important;background:rgba(255,216,77,.1)!important;box-shadow:0 0 14px rgba(255,216,77,.35)}
+.dpool{display:flex;flex-wrap:wrap;gap:8px;min-height:58px;padding:10px;border:2px dashed var(--dim);border-radius:10px;margin-top:12px;align-items:flex-start}
+.dpool:empty::before{content:"✔ Viskas sudėliota";color:#3b6e52;font-size:.85rem;padding:8px}
+.mrow3{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);gap:8px;align-items:center;margin-bottom:9px}
+.mrow3 .lf{background:#00140a;border:2px solid var(--dim);border-radius:8px;padding:11px 12px;font-weight:700;color:#e9fff2;overflow-wrap:anywhere}
+.mrow3 .ar{color:var(--c);text-align:center;font-weight:900}
+.mzone{min-height:50px;border:2px dashed var(--g2);border-radius:8px;display:flex;align-items:center;padding:3px;transition:border-color .15s,background .15s}
+.mzone .ph{color:#3b6e52;font-size:.82rem;padding-left:8px;pointer-events:none}
+.mzone .dchip{width:100%}
+.gbins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.gbin{border:2px dashed var(--g2);border-radius:10px;padding:10px;min-height:130px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,background .15s}
+.gbin h4{margin:0;color:var(--c);font-size:.95rem;text-align:center;pointer-events:none}
+.gbin .gin{display:flex;flex-wrap:wrap;gap:6px;flex:1;align-content:flex-start}
+.dchip.right{border-color:var(--g);background:#063b1f}.dchip.wrong{border-color:var(--r);background:#3b0612}
+.slist{display:flex;flex-direction:column;gap:8px}
+.srow{display:flex;align-items:center;gap:10px;padding:12px 14px;border:2px solid var(--g2);border-radius:8px;background:#00140a;color:#e9fff2;font-weight:700;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.srow .k{flex:none;width:28px;height:28px;border:1px solid var(--g2);display:grid;place-items:center;border-radius:4px;color:var(--g);font-size:.85rem}
+.srow .t{flex:1;overflow-wrap:anywhere}
+.srow .h{color:#3b6e52;font-size:1.2rem;letter-spacing:-2px}
+.srow.right{border-color:var(--g);background:#063b1f}.srow.wrong{border-color:var(--r);background:#3b0612}
+.dhint{font-size:.78rem;color:#5f9c7a;margin:-4px 0 12px}
+[data-done] .dchip,[data-done] .srow{cursor:default}
 /* RAŠYMO EFEKTAS */
 .tcur{display:inline-block;width:.55em;height:1.05em;background:var(--g);margin-left:3px;vertical-align:-.15em;box-shadow:0 0 8px var(--g);animation:tblink .7s steps(1) infinite}
 @keyframes tblink{50%{opacity:0}}
@@ -1221,21 +1249,96 @@ function renderMulti(box,q){
       if(it.on && it.ok) it.el.classList.add('right'); else if(it.on && !it.ok){ it.el.classList.add('wrong'); ok=false; } else if(!it.on && it.ok){ it.el.classList.add('missed'); ok=false; } });
     resolveAnswer(ok,q); };
 }
+/* ---------- telefonas: jei po bakstelėjimo naršyklė „praryja“ paspaudimą, jį sukuriame patys ---------- */
+(function(){
+  const downs=new Map();
+  document.addEventListener('pointerdown', e=>{ if(e.pointerType==='touch') downs.set(e.pointerId,{x:e.clientX,y:e.clientY,t:Date.now()}); }, true);
+  document.addEventListener('pointerup', e=>{
+    if(e.pointerType!=='touch') return;
+    const d=downs.get(e.pointerId); downs.delete(e.pointerId);
+    if(!d || Math.hypot(e.clientX-d.x, e.clientY-d.y)>10 || Date.now()-d.t>700) return;
+    const b=document.elementFromPoint(e.clientX,e.clientY)?.closest('button');
+    if(!b || b.disabled) return;
+    const id={}; b._pend=id;
+    setTimeout(()=>{ if(b._pend===id && b.isConnected && !b.disabled){ b._pend=null; b.click(); } }, 380);
+  }, true);
+  document.addEventListener('click', e=>{ const b=e.target && e.target.closest && e.target.closest('button'); if(b) b._pend=null; }, true);
+})();
+/* ---------- tempimas (pelė + pirštas) ---------- */
+function dragify(el, o){
+  el.addEventListener('pointerdown', e=>{
+    if(el.closest('[data-done]') || (e.pointerType==='mouse' && e.button!==0)) return;
+    e.preventDefault();
+    const sx=e.clientX, sy=e.clientY, r=el.getBoundingClientRect(), ox=sx-r.left, oy=sy-r.top;
+    let ghost=null, over=null; const pid=e.pointerId;
+    const move=ev=>{
+      if(ev.pointerId!==pid) return;
+      if(ev.cancelable) ev.preventDefault();
+      if(!ghost && Math.hypot(ev.clientX-sx, ev.clientY-sy)>6){
+        ghost=el.cloneNode(true); ghost.classList.add('dghost'); ghost.classList.remove('sel');
+        ghost.style.width=r.width+'px'; document.body.appendChild(ghost); el.classList.add('dsrc');
+        o.onStart && o.onStart();
+      }
+      if(!ghost) return;
+      ghost.style.transform=`translate(${ev.clientX-ox}px,${ev.clientY-oy}px)`;
+      const t=document.elementFromPoint(ev.clientX, ev.clientY);
+      const z=o.dropSel ? (t&&t.closest(o.dropSel)) : null;
+      if(z!==over){ over&&over.classList.remove('dover'); over=z; over&&over.classList.add('dover'); }
+      o.onMove && o.onMove(ev, t);
+    };
+    const end=ev=>{
+      if(ev.pointerId!==pid) return;
+      document.removeEventListener('pointermove',move); document.removeEventListener('pointerup',end); document.removeEventListener('pointercancel',end);
+      over&&over.classList.remove('dover'); el.classList.remove('dsrc');
+      if(ghost){ ghost.remove(); if(ev.type==='pointerup') o.onDrop && o.onDrop(over); o.onEnd && o.onEnd(); }
+      else if(ev.type==='pointerup') o.onTap && o.onTap();
+    };
+    document.addEventListener('pointermove',move,{passive:false}); document.addEventListener('pointerup',end); document.addEventListener('pointercancel',end);
+  });
+}
+/* lenta su kortelėmis: zonos (.dz) ir „baseinas“ (.dpool). cap – kiek kortelių telpa zonoje (0 = neribota) */
+function chipBoard(box, pool, cap, onChange){
+  let selected=null;
+  const zoneOf=chip=>chip.closest('.dz');
+  const place=(chip, target)=>{
+    if(!chip || !target) return;
+    if(target.classList.contains('dpool')){ pool.appendChild(chip); }
+    else {
+      const holder=target.querySelector('.din')||target;
+      if(cap===1){ const prev=holder.querySelector('.dchip'); if(prev && prev!==chip){ const from=zoneOf(chip); if(from) (from.querySelector('.din')||from).appendChild(prev); else pool.appendChild(prev); } }
+      holder.appendChild(chip);
+    }
+    selectChip(null); refreshPh(); onChange();
+  };
+  const refreshPh=()=>box.querySelectorAll('.dz').forEach(z=>{ const ph=z.querySelector('.ph'); if(ph) ph.style.display=z.querySelector('.dchip')?'none':''; });
+  function selectChip(c){ if(selected) selected.classList.remove('sel'); selected=c; if(c) c.classList.add('sel'); }
+  const addChip=chip=>{
+    dragify(chip,{ dropSel:'.dz,.dpool', onStart:()=>selectChip(null), onDrop:t=>{ if(t) place(chip,t); },
+      onTap:()=>{ if(box.dataset.done) return; if(selected===chip){ selectChip(null); return; }
+        if(selected && cap===1 && zoneOf(chip) && !zoneOf(selected)){ place(selected, zoneOf(chip)); return; }
+        selectChip(chip); } });
+  };
+  box.addEventListener('pointerup', ev=>{
+    if(box.dataset.done || !selected) return;
+    if(ev.target.closest('.dchip')) return;
+    const z=ev.target.closest('.dz,.dpool'); if(z) place(selected,z);
+  });
+  return {addChip, refreshPh};
+}
 function renderMatch(box,q){
   box.className='ans reveal';
-  const rights=shuffle(q.b.map((t,i)=>({t,i})));
-  const sels=[];
-  q.a.forEach((l,i)=>{ const r=document.createElement('div'); r.className='mrow';
-    r.innerHTML=`<div class="lf"></div><div class="ar">→</div><select><option value="">– pasirink –</option>${rights.map(x=>`<option value="${x.i}"></option>`).join('')}</select>`;
-    r.querySelector('.lf').textContent=l;
-    const sel=r.querySelector('select'); [...sel.options].slice(1).forEach((o,k)=>o.textContent=rights[k].t);
-    sel.onchange=upd; sels.push(sel); box.appendChild(r); });
+  box.innerHTML=`<div class="dhint">💡 Tempk atsakymą prie poros arba bakstelėk atsakymą, tada vietą</div><div class="mlist"></div><div class="dpool"></div>`;
+  const list=box.querySelector('.mlist'), pool=box.querySelector('.dpool');
+  const zones=q.a.map((l,i)=>{ const r=document.createElement('div'); r.className='mrow3';
+    r.innerHTML=`<div class="lf"></div><div class="ar">→</div><div class="mzone dz" data-i="${i}"><span class="ph">⇢ tempk čia</span></div>`;
+    r.querySelector('.lf').textContent=l; list.appendChild(r); return r.querySelector('.mzone'); });
   const cb=checkBar(box);
-  function upd(){ const used=sels.map(s=>s.value).filter(Boolean); cb.btn.disabled=used.length<q.a.length;
-    cb.note.textContent = new Set(used).size<used.length ? '⚠ Tas pats atsakymas parinktas kelis kartus' : `Sujungta: ${used.length} iš ${q.a.length}`; }
+  const upd=()=>{ const n=zones.filter(z=>z.querySelector('.dchip')).length; cb.btn.disabled=n<q.a.length; cb.note.textContent=`Sujungta: ${n} iš ${q.a.length}`; };
+  const B=chipBoard(box, pool, 1, upd);
+  shuffle(q.b.map((t,i)=>({t,i}))).forEach(x=>{ const c=document.createElement('div'); c.className='dchip'; c.dataset.r=x.i; c.textContent=x.t; pool.appendChild(c); B.addChip(c); });
   upd();
-  cb.btn.onclick=()=>{ cb.btn.disabled=true; let ok=true;
-    sels.forEach((s,i)=>{ s.disabled=true; const good=+s.value===i; s.classList.add(good?'right':'wrong'); if(!good) ok=false; });
+  cb.btn.onclick=()=>{ box.dataset.done='1'; cb.btn.disabled=true; let ok=true;
+    zones.forEach((z,i)=>{ const c=z.querySelector('.dchip'); const good=c && +c.dataset.r===i; if(c) c.classList.add(good?'right':'wrong'); if(!good) ok=false; });
     resolveAnswer(ok,q); };
 }
 function renderNum(box,q){
@@ -1250,18 +1353,17 @@ function renderNum(box,q){
 }
 function renderGroup(box,q){
   box.className='ans reveal';
-  const items=shuffle(q.a.map((t,i)=>({t,k:q.k[i],sel:null})));
-  items.forEach(it=>{ const r=document.createElement('div'); r.className='grow2';
-    r.innerHTML=`<span class="it"></span><span class="gb">${q.g.map((g,j)=>`<button data-j="${j}"></button>`).join('')}</span>`;
-    r.querySelector('.it').textContent=it.t;
-    r.querySelectorAll('.gb button').forEach(b=>{ b.textContent=q.g[+b.dataset.j];
-      b.onclick=()=>{ if(box.dataset.done) return; it.sel=+b.dataset.j; r.querySelectorAll('.gb button').forEach(x=>x.classList.toggle('on',x===b)); upd(); }; });
-    it.el=r; box.appendChild(r); });
+  box.innerHTML=`<div class="dhint">💡 Tempk kiekvieną žodį į tinkamą grupę arba bakstelėk žodį, tada grupę</div><div class="gbins"></div><div class="dpool"></div>`;
+  const bins=box.querySelector('.gbins'), pool=box.querySelector('.dpool');
+  q.g.forEach((g,j)=>{ const b=document.createElement('div'); b.className='gbin dz'; b.dataset.j=j; b.innerHTML='<h4></h4><div class="gin din"></div>'; b.querySelector('h4').textContent=g; bins.appendChild(b); });
   const cb=checkBar(box);
-  function upd(){ const k=items.filter(x=>x.sel!=null).length; cb.btn.disabled=k<items.length; cb.note.textContent=`Suskirstyta: ${k} iš ${items.length}`; }
+  const total=q.a.length;
+  const upd=()=>{ const n=total-pool.querySelectorAll('.dchip').length; cb.btn.disabled=n<total; cb.note.textContent=`Suskirstyta: ${n} iš ${total}`; };
+  const B=chipBoard(box, pool, 0, upd);
+  shuffle(q.a.map((t,i)=>({t,k:q.k[i]}))).forEach(x=>{ const c=document.createElement('div'); c.className='dchip'; c.dataset.k=x.k; c.textContent=x.t; pool.appendChild(c); B.addChip(c); });
   upd();
   cb.btn.onclick=()=>{ box.dataset.done='1'; cb.btn.disabled=true; let ok=true;
-    items.forEach(it=>{ const good=it.sel===it.k; it.el.classList.add(good?'right':'wrong'); if(!good) ok=false; it.el.querySelectorAll('button').forEach(b=>b.disabled=true); });
+    box.querySelectorAll('.gbin').forEach(b=>b.querySelectorAll('.dchip').forEach(c=>{ const good=+c.dataset.k===+b.dataset.j; c.classList.add(good?'right':'wrong'); if(!good) ok=false; }));
     resolveAnswer(ok,q); };
 }
 function renderChoice(box,q){
@@ -1292,28 +1394,31 @@ function renderType(box,q){
 }
 function renderOrder(box,q){
   box.className='ans reveal';
-  let pool=q.a.map((t,i)=>({t,i})); let tries=0;
-  do{ pool=shuffle(pool); }while(pool.every((x,k)=>x.i===k) && ++tries<10);
-  const picked=[];
-  box.innerHTML=`<div class="ordSlots"></div><div class="ordPool"></div><div style="margin-top:12px;display:flex;gap:10px;justify-content:center"><button class="btn sm" id="ordReset">↺ Iš naujo</button></div>`;
-  const slots=box.querySelector('.ordSlots'), poolEl=box.querySelector('.ordPool');
-  const draw=()=>{
-    slots.innerHTML=''; for(let k=0;k<q.a.length;k++){ const d=document.createElement('div'); const it=picked[k];
-      d.className='ordSlot'+(it?' fill':''); d.innerHTML=`<span class="k">${k+1}</span><span></span>`; d.lastChild.textContent=it?it.t:'…';
-      if(it) d.onclick=()=>{ if(box.dataset.done) return; picked.splice(k); draw(); };
-      slots.appendChild(d); }
-    poolEl.querySelectorAll('.opt').forEach(b=>b.classList.toggle('used', picked.includes(pool[+b.dataset.k])));
-  };
-  pool.forEach((it,k)=>{ const b=document.createElement('button'); b.className='opt'; b.dataset.k=k;
-    b.innerHTML=`<span></span>`; b.firstChild.textContent=it.t;
-    b.onclick=()=>{ if(box.dataset.done || picked.includes(it)) return; picked.push(it); draw();
-      if(picked.length===q.a.length){ box.dataset.done='1'; poolEl.querySelectorAll('.opt').forEach(x=>x.disabled=true); $('ordReset').disabled=true;
-        const ok=picked.every((x,k2)=>x.i===k2);
-        slots.querySelectorAll('.ordSlot').forEach((d,k2)=>d.classList.add(picked[k2].i===k2?'right':'wrong'));
-        resolveAnswer(ok,q); } };
-    poolEl.appendChild(b); });
-  $('ordReset').onclick=()=>{ if(box.dataset.done) return; picked.length=0; draw(); };
-  draw();
+  let items=q.a.map((t,i)=>({t,i})); let tries=0;
+  do{ items=shuffle(items); }while(items.every((x,k)=>x.i===k) && ++tries<10);
+  box.innerHTML=`<div class="dhint">💡 Tempk eilutes aukštyn/žemyn arba bakstelėk dvi eilutes, kad jos susikeistų</div><div class="slist"></div>`;
+  const list=box.querySelector('.slist');
+  const renum=()=>[...list.children].forEach((r,k)=>r.querySelector('.k').textContent=k+1);
+  let selected=null;
+  const sel=r=>{ if(selected) selected.classList.remove('sel'); selected=r; if(r) r.classList.add('sel'); };
+  items.forEach(it=>{
+    const r=document.createElement('div'); r.className='srow'; r.dataset.i=it.i;
+    r.innerHTML='<span class="k"></span><span class="t"></span><span class="h">⋮⋮</span>'; r.querySelector('.t').textContent=it.t;
+    dragify(r,{
+      onStart:()=>sel(null),
+      onMove:(ev)=>{ const rows=[...list.children].filter(x=>x!==r);
+        for(const o of rows){ const b=o.getBoundingClientRect(); if(ev.clientY>b.top && ev.clientY<b.bottom){ const before=ev.clientY<b.top+b.height/2; list.insertBefore(r, before?o:o.nextSibling); renum(); break; } } },
+      onTap:()=>{ if(box.dataset.done) return; if(!selected){ sel(r); return; } if(selected===r){ sel(null); return; }
+        const a=selected, b=r, ph=document.createElement('div'); list.replaceChild(ph,a); list.replaceChild(a,b); list.replaceChild(b,ph); sel(null); renum(); }
+    });
+    list.appendChild(r);
+  });
+  renum();
+  const cb=checkBar(box); cb.btn.disabled=false; cb.note.textContent='Kai sudėliosi – spausk „Tikrinti“';
+  cb.btn.onclick=()=>{ box.dataset.done='1'; cb.btn.disabled=true; sel(null);
+    const rows=[...list.children]; let ok=true;
+    rows.forEach((r,k)=>{ const good=+r.dataset.i===k; r.classList.add(good?'right':'wrong'); if(!good) ok=false; });
+    resolveAnswer(ok,q); };
 }
 
 function answer(btn,o,opts,q){

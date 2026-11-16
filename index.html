@@ -657,7 +657,26 @@ const QUESTIONS = [
   {q:"Kodėl eglė vadinama visžaliu medžiu?", a:["Ji nenumeta spyglių žiemą","Ji auga tik žalioje žolėje","Jos kamienas žalias","Ji žydi žaliais žiedais"], e:"Eglė spyglius keičia palaipsniui, todėl visus metus lieka žalia."},
   {q:"Kurio gyvūno ragus turi ir patinai, ir patelės?", a:["Šiaurės elnio","Briedžio","Stirnos","Tauriojo elnio"], e:"Šiaurės elniai – vieninteliai elniniai, kurių ir patelės turi ragus."},
   {q:"Kuriame Žemės pusrutulyje gyvena beveik visi pingvinai?", a:["Pietiniame","Šiauriniame","Tik ant pusiaujo","Abiejuose po lygiai"], e:"Pingvinai gyvena pietiniame pusrutulyje – Šiaurės ašigalyje jų nėra! Ten gyvena baltieji lokiai."},
-  {q:"Kiek dienų praeina nuo Kalėdų (gruodžio 25 d.) iki Naujųjų metų (sausio 1 d.)?", a:["7","6","5","8"], e:"Nuo gruodžio 25 iki sausio 1 – lygiai 7 dienos (savaitė)."}
+  {q:"Kiek dienų praeina nuo Kalėdų (gruodžio 25 d.) iki Naujųjų metų (sausio 1 d.)?", a:["7","6","5","8"], e:"Nuo gruodžio 25 iki sausio 1 – lygiai 7 dienos (savaitė)."},
+  /* ---- Kiti klausimų tipai ---- */
+  {t:"tf", q:"Kūčios Lietuvoje švenčiamos gruodžio 24-ąją.", a:["Teisinga"], e:"Taip – Kūčių vakarienė vyksta gruodžio 24 d. vakarą, Kalėdos – gruodžio 25 d."},
+  {t:"tf", q:"Ant Kūčių stalo tradiciškai būna mėsos patiekalų.", a:["Neteisinga"], e:"Kūčios – pasninko diena, todėl mėsos patiekalų nebūna."},
+  {t:"tf", q:"Giesmė „Tyli naktis“ pirmą kartą nuskambėjo Austrijoje.", a:["Teisinga"], e:"1818 m. Oberndorfe, Austrijoje."},
+  {t:"tf", q:"Pingvinai gyvena Šiaurės ašigalyje.", a:["Neteisinga"], e:"Pingvinai gyvena pietiniame pusrutulyje, o Arktyje – baltieji lokiai."},
+  {t:"type", q:"Kaip vadinamas laikotarpis prieš Kalėdas, kai advento vainike uždegamos 4 žvakės?", a:["Adventas","Advento laikotarpis"], e:"Adventas trunka keturis sekmadienius prieš Kalėdas."},
+  {t:"type", q:"Kaip vadinami ploni paplotėliai, kuriais dalijamasi prieš Kūčių vakarienę?", a:["Kalėdaičiai","Kalėdaitis","Plotkelės","Plotkelė"], e:"Kalėdaičiai (plotkelės) – jais dalijamasi linkint gero."},
+  {t:"type", q:"Koks medis tradiciškai puošiamas per Kalėdas?", a:["Eglė","Eglutė"], e:"Kalėdų eglė – visžalis medis, puošiamas žaisliukais ir lemputėmis."},
+  {t:"num", q:"Kuriais metais pirmą kartą nuskambėjo giesmė „Tyli naktis“?", a:["1818"], tol:"", e:"1818 m. Oberndorfe, Austrijoje."},
+  {t:"num", q:"Kiek iš viso elnių traukia Kalėdų Senelio roges kartu su Rudolfu?", a:["9"], tol:"", e:"Aštuoni elniai ir Rudolfas – iš viso devyni."},
+  {t:"num", q:"Kiek langelių paprastai turi advento kalendorius (nuo gruodžio 1 iki 24 d.)?", a:["24"], tol:"", e:"Po vieną langelį kiekvienai dienai nuo gruodžio 1-osios iki Kūčių."},
+  {t:"order", q:"Sudėliok šventes iš eilės – nuo ankstyviausios iki vėliausios", a:["Advento pradžia","Kūčios","Kalėdos","Naujieji metai","Trys Karaliai"], e:"Adventas prasideda lapkričio pabaigoje arba gruodžio pradžioje, Trys Karaliai – sausio 6 d."},
+  {t:"order", q:"Sudėliok datas nuo ankstyviausios", a:["Gruodžio 6 d. – šv. Mikalojus","Gruodžio 24 d. – Kūčios","Gruodžio 25 d. – Kalėdos","Sausio 6 d. – Trys Karaliai"], e:"Šv. Mikalojaus diena – gruodžio 6-ąją."},
+  {t:"multi", q:"Kurie patiekalai tradiciškai būna ant Kūčių stalo?", a:["Kūčiukai su aguonų pienu","Silkė","Spanguolių kisielius","Kepta vištiena","Cepelinai su spirgučiais"], n:3, e:"Kūčių patiekalai – be mėsos: žuvis, grybai, kūčiukai, kisielius."},
+  {t:"multi", q:"Kurie gyvūnai gyvena Arktyje (šiaurėje)?", a:["Baltasis lokys","Šiaurės elnis","Pingvinas","Kengūra"], n:2, e:"Pingvinai gyvena pietiniame pusrutulyje, kengūros – Australijoje."},
+  {t:"match", q:"Sujunk „Linksmų Kalėdų“ su kalba", a:["Feliz Navidad","Joyeux Noël","Frohe Weihnachten","Merry Christmas","Buon Natale"], b:["Ispanų","Prancūzų","Vokiečių","Anglų","Italų"], e:""},
+  {t:"match", q:"Sujunk šalį ir jos šventinių dovanų nešėją", a:["Suomija","Italija","Prancūzija","Lietuva"], b:["Joulupukki","Befana","Père Noël","Kalėdų Senelis"], e:"Italijoje dovanas sausio 6-ąją atneša gera ragana Befana."},
+  {t:"group", q:"Suskirstyk: kas susiję su Kalėdomis, o kas – su Velykomis?", g:["Kalėdos","Velykos"], a:["Eglutė","Kūčiukai","Kalėdų Senelis","Margučiai","Velykų bobutė","Margučių ridenimas"], k:[0,0,0,1,1,1], e:""},
+  {t:"group", q:"Suskirstyk gyvūnus pagal tai, kur jie gyvena", g:["Arktis (šiaurė)","Antarktida (pietūs)"], a:["Baltasis lokys","Šiaurės elnis","Poliarinė lapė","Imperatoriškasis pingvinas","Adelės pingvinas"], k:[0,0,0,1,1], e:"Baltieji lokiai ir pingvinai niekada nesusitinka – jie gyvena priešinguose Žemės kraštuose!"}
 ];
 
 /* ===================== BENDRA ===================== */

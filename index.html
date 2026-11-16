@@ -456,7 +456,7 @@ select.right{border-color:var(--g);background:#063b1f;color:#e9fff2}select.wrong
   </div>
   <div class="panel pastebox">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-      <div><b class="cyan">📋 Įklijuoti iš Excel / Google Sheets</b><div class="muted" style="font-size:.8rem;margin-top:4px">Stulpeliai: Klausimas · Teisingas · Neteisingas 1 · Neteisingas 2 · Neteisingas 3 · Paaiškinimas · Tipas (tuščia = pasirinkimas, „tn“, „įrašyti“, „eilė“, „keli“, „poros“, „skaičius“, „grupės“ – pavyzdžiai Excel šablone)</div></div>
+      <div><b class="cyan">📋 Įklijuoti iš Excel / Google Sheets</b><div class="muted" style="font-size:.8rem;margin-top:4px">Stulpeliai: Klausimas · Teisingas · Neteisingas 1 · Neteisingas 2 · Neteisingas 3 · Paaiškinimas · Tipas (tuščia = pasirinkimas, „tm“ – tiesa/melas, „įrašyti“, „eilė“, „keli“, „poros“, „skaičius“, „grupės“ – pavyzdžiai Excel šablone)</div></div>
       <button class="btn sm cy" id="edPasteToggle">Atidaryti</button>
     </div>
     <div id="edPasteArea" class="hidden" style="margin-top:12px">
@@ -659,10 +659,10 @@ const QUESTIONS = [
   {q:"Kuriame Žemės pusrutulyje gyvena beveik visi pingvinai?", a:["Pietiniame","Šiauriniame","Tik ant pusiaujo","Abiejuose po lygiai"], e:"Pingvinai gyvena pietiniame pusrutulyje – Šiaurės ašigalyje jų nėra! Ten gyvena baltieji lokiai."},
   {q:"Kiek dienų praeina nuo Kalėdų (gruodžio 25 d.) iki Naujųjų metų (sausio 1 d.)?", a:["7","6","5","8"], e:"Nuo gruodžio 25 iki sausio 1 – lygiai 7 dienos (savaitė)."},
   /* ---- Kiti klausimų tipai ---- */
-  {t:"tf", q:"Kūčios Lietuvoje švenčiamos gruodžio 24-ąją.", a:["Teisinga"], e:"Taip – Kūčių vakarienė vyksta gruodžio 24 d. vakarą, Kalėdos – gruodžio 25 d."},
-  {t:"tf", q:"Ant Kūčių stalo tradiciškai būna mėsos patiekalų.", a:["Neteisinga"], e:"Kūčios – pasninko diena, todėl mėsos patiekalų nebūna."},
-  {t:"tf", q:"Giesmė „Tyli naktis“ pirmą kartą nuskambėjo Austrijoje.", a:["Teisinga"], e:"1818 m. Oberndorfe, Austrijoje."},
-  {t:"tf", q:"Pingvinai gyvena Šiaurės ašigalyje.", a:["Neteisinga"], e:"Pingvinai gyvena pietiniame pusrutulyje, o Arktyje – baltieji lokiai."},
+  {t:"tf", q:"Kūčios Lietuvoje švenčiamos gruodžio 24-ąją.", a:["Tiesa"], e:"Taip – Kūčių vakarienė vyksta gruodžio 24 d. vakarą, Kalėdos – gruodžio 25 d."},
+  {t:"tf", q:"Ant Kūčių stalo tradiciškai būna mėsos patiekalų.", a:["Melas"], e:"Kūčios – pasninko diena, todėl mėsos patiekalų nebūna."},
+  {t:"tf", q:"Giesmė „Tyli naktis“ pirmą kartą nuskambėjo Austrijoje.", a:["Tiesa"], e:"1818 m. Oberndorfe, Austrijoje."},
+  {t:"tf", q:"Pingvinai gyvena Šiaurės ašigalyje.", a:["Melas"], e:"Pingvinai gyvena pietiniame pusrutulyje, o Arktyje – baltieji lokiai."},
   {t:"type", q:"Kaip vadinamas laikotarpis prieš Kalėdas, kai advento vainike uždegamos 4 žvakės?", a:["Adventas","Advento laikotarpis"], e:"Adventas trunka keturis sekmadienius prieš Kalėdas."},
   {t:"type", q:"Kaip vadinami ploni paplotėliai, kuriais dalijamasi prieš Kūčių vakarienę?", a:["Kalėdaičiai","Kalėdaitis","Plotkelės","Plotkelė"], e:"Kalėdaičiai (plotkelės) – jais dalijamasi linkint gero."},
   {t:"type", q:"Koks medis tradiciškai puošiamas per Kalėdas?", a:["Eglė","Eglutė"], e:"Kalėdų eglė – visžalis medis, puošiamas žaisliukais ir lemputėmis."},
@@ -1244,7 +1244,7 @@ function nextQuestion(){
   if(C.qi>=C.deck.length){ C.deck=shuffle(myQs()); C.qi=0; }
   const q=C.deck[C.qi++];
   const main=$('main');
-  const hint={choice:'PASIRINK ATSAKYMĄ', tf:'TEISINGA AR NETEISINGA?', type:'ĮRAŠYK ATSAKYMĄ', order:'SUDĖLIOK TEISINGA EILĖS TVARKA', multi:`PAŽYMĖK VISUS TEISINGUS (${q.n})`, match:'SUJUNK POROMIS', num:'ĮRAŠYK SKAIČIŲ', group:'SUSKIRSTYK Į GRUPES'}[q.t||'choice'];
+  const hint={choice:'PASIRINK ATSAKYMĄ', tf:'TIESA AR MELAS?', type:'ĮRAŠYK ATSAKYMĄ', order:'SUDĖLIOK TEISINGA EILĖS TVARKA', multi:`PAŽYMĖK VISUS TEISINGUS (${q.n})`, match:'SUJUNK POROMIS', num:'ĮRAŠYK SKAIČIŲ', group:'SUSKIRSTYK Į GRUPES'}[q.t||'choice'];
   main.innerHTML=`<div class="qhead">// UŽKLAUSA · ${hint}</div><p class="qtext"></p><div class="ans"></div>`;
   const dur=typeText(main.querySelector('.qtext'), q.q);
   const box=main.querySelector('.ans');
@@ -1615,14 +1615,14 @@ function renderEnd(ranking, place, stats, teams, myTeam){
 
 /* ===================== KLAUSIMŲ RINKINIAI ===================== */
 const BUILTIN = { id:null, builtin:true, title:'🎄 Kalėdų viktorina', questions:QUESTIONS };
-const QTYPES={choice:'Pasirinkimas', tf:'Teisinga / Neteisinga', type:'Įrašyti atsakymą', order:'Sudėlioti eilės tvarka', multi:'Keli teisingi', match:'Poros', num:'Skaičius', group:'Grupavimas'};
+const QTYPES={choice:'Pasirinkimas', tf:'Tiesa / Melas', type:'Įrašyti atsakymą', order:'Sudėlioti eilės tvarka', multi:'Keli teisingi', match:'Poros', num:'Skaičius', group:'Grupavimas'};
 function parseNum(v){ const m=String(v??'').replace(/[\s\u00a0]/g,'').replace(/,/g,'.').match(/-?\d+(?:\.\d+)?/); return m?parseFloat(m[0]):NaN; }
 function tolAbs(target, tol){ const t=String(tol||'').trim(); if(!t) return 0; const n=parseNum(t); if(isNaN(n)) return 0; return t.endsWith('%') ? Math.abs(target)*n/100 : Math.abs(n); }
 function numOk(v, q){ const x=parseNum(v), tgt=parseNum(q.a[0]); if(isNaN(x)||isNaN(tgt)) return false; return Math.abs(x-tgt) <= tolAbs(tgt,q.tol)+1e-9; }
-const TF_T='Teisinga', TF_F='Neteisinga';
+const TF_T='Tiesa', TF_F='Melas';
 /* atsakymo palyginimas: be didžiųjų raidžių, lietuviškų ženklų, skyrybos */
 function normAns(v){ return String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/(\d),(\d)/g,'$1.$2').replace(/[^\p{L}\p{N}.]+/gu,' ').replace(/\.(?!\d)/g,' ').replace(/\s+/g,' ').trim(); }
-function tfValue(v){ const n=normAns(v); if(['teisinga','t','taip','tiesa','true','1'].includes(n)) return TF_T; if(['neteisinga','n','ne','netiesa','false','0'].includes(n)) return TF_F; return null; }
+function tfValue(v){ const n=normAns(v); if(['tiesa','teisinga','t','taip','true','1'].includes(n)) return TF_T; if(['melas','m','neteisinga','n','ne','netiesa','false','0'].includes(n)) return TF_F; return null; }
 function qAnswerText(q){
   if(q.t==='order') return q.a.join(' → ');
   if(q.t==='type') return q.a.join(' / ');
@@ -1866,10 +1866,10 @@ function loadXLSX(){
     document.head.appendChild(sc); });
 }
 /* eilutės: [Klausimas, Teisingas, Neteisingas1, Neteisingas2, Neteisingas3, Paaiškinimas, Tipas(nebūtinas)]
-   Tipas: tuščia/„pasirinkimas“ | „tn“ (teisinga/neteisinga) | „įrašyti“ (stulpeliai B–E – priimami atsakymai) | „eilė“ (B–E – elementai teisinga tvarka) */
+   Tipas: tuščia/„pasirinkimas“ | „tm“ arba „tn“ (tiesa/melas) | „įrašyti“ (stulpeliai B–E – priimami atsakymai) | „eilė“ (B–E – elementai teisinga tvarka) */
 function rowType(v){ const n=normAns(v);
   if(!n || /^(pasirinkimas|pasirinkti|choice|testas)$/.test(n)) return 'choice';
-  if(/^(tn|t n|teisinga neteisinga|tiesa netiesa|tf)$/.test(n)) return 'tf';
+  if(/^(tm|t m|tn|t n|tiesa melas|teisinga neteisinga|tiesa netiesa|tf)$/.test(n)) return 'tf';
   if(/^(irasyti|irasymas|irasomas|type|tekstas)$/.test(n)) return 'type';
   if(/^(eile|eiles tvarka|seka|order|sudeti|sudelioti)$/.test(n)) return 'order';
   if(/^(keli|keli teisingi|multi|daug)$/.test(n)) return 'multi';
@@ -1932,7 +1932,7 @@ $('tdTpl').onclick=async()=>{
       ['Klausimas','Teisingas atsakymas','Neteisingas 1','Neteisingas 2','Neteisingas 3','Paaiškinimas (nebūtinas)','Tipas (nebūtinas)'],
       ['Kiek bus 7 × 8?','56','54','64','48','7 × 8 = 56',''],
       ['Kokia Lietuvos sostinė?','Vilnius','Kaunas','Klaipėda','','',''],
-      ['Žemė sukasi aplink Saulę.','Teisinga','','','','','tn'],
+      ['Žemė sukasi aplink Saulę.','Tiesa','','','','Tiesa/melas: B stulpelyje „Tiesa“ arba „Melas“','tm'],
       ['Koks didžiausias Lietuvos ežeras?','Drūkšiai','Drūkšių','','','Įrašomas atsakymas: B–E stulpeliai – visi priimami variantai','įrašyti'],
       ['Sudėliok nuo mažiausio iki didžiausio','1/4','1/3','1/2','3/4','Eilė: B–E stulpeliai – elementai TEISINGA tvarka','eilė'],
       ['Pažymėk visus žinduolius','*Banginis','*Šikšnosparnis','Pingvinas','Krokodilas','Keli teisingi: teisingus pažymėkite žvaigždute *','keli'],
@@ -1956,7 +1956,7 @@ function toEd(x){ const E=blankQ(QTYPES[x.t]?x.t:'choice'); E.q=x.q||''; E.e=x.e
   const A=x.a||[];
   if(E.t==='match'){ A.forEach((v,i)=>{ if(i<6){ E.a[i]=v; E.b[i]=(x.b||[])[i]||''; } }); }
   else if(E.t==='group'){ (x.g||[]).forEach((g,j)=>{ if(j<3){ E.g[j]=g; E.gi[j]=A.filter((_,i)=>(x.k||[])[i]===j).join('\n'); } }); }
-  else { A.forEach((v,i)=>{ if(i<6) E.a[i]=v; }); if(E.t==='multi') E.c=E.c.map((_,i)=>i<(x.n||0)); if(E.t==='num') E.tol=x.tol||''; }
+  else { A.forEach((v,i)=>{ if(i<6) E.a[i]=v; }); if(E.t==='tf') E.a[0]=tfValue(A[0])||TF_T; if(E.t==='multi') E.c=E.c.map((_,i)=>i<(x.n||0)); if(E.t==='num') E.tol=x.tol||''; }
   return E; }
 function openEditor(set){
   ED={ id:set.id||null, title:set.title||'', shared:!!set.shared,
@@ -1976,8 +1976,8 @@ function ansEditorHTML(x){
   if(x.t==='group') return `<div class="flab">GRUPĖS · 2–3 grupės, elementus rašykite <span class="cyan">po vieną eilutėje</span></div>
       <div class="edgrp">${[0,1,2].map(j=>`<div><input maxlength="150" data-g="${j}" placeholder="Grupė ${j+1}${j<2?'':' (nebūtina)'}"><textarea rows="4" data-gi="${j}" placeholder="elementas\nelementas\n..."></textarea></div>`).join('')}</div>`;
   if(x.t==='tf') return `<div class="flab">TEISINGAS ATSAKYMAS</div><div class="tfpick">
-      <label class="${x.a[0]!==TF_F?'on':''}"><input type="radio" name="tf" value="${TF_T}" ${x.a[0]!==TF_F?'checked':''}> ✔ Teisinga</label>
-      <label class="${x.a[0]===TF_F?'on':''}"><input type="radio" name="tf" value="${TF_F}" ${x.a[0]===TF_F?'checked':''}> ✗ Neteisinga</label></div>`;
+      <label class="${x.a[0]!==TF_F?'on':''}"><input type="radio" name="tf" value="${TF_T}" ${x.a[0]!==TF_F?'checked':''}> ✔ Tiesa</label>
+      <label class="${x.a[0]===TF_F?'on':''}"><input type="radio" name="tf" value="${TF_F}" ${x.a[0]===TF_F?'checked':''}> ✗ Melas</label></div>`;
   if(x.t==='type') return `<div class="flab">PRIIMAMI ATSAKYMAI · <span class="cyan">užtenka vieno</span>; didžiosios raidės ir lietuviški ženklai nesvarbūs</div>
       <div class="ansgrid">${[0,1,2,3].map(k=>`<input ${k===0?'class="ok"':''} maxlength="150" data-f="a${k}" placeholder="${k===0?'✔ Teisingas atsakymas':'✔ Kitas priimamas variantas (nebūtinas)'}">`).join('')}</div>`;
   if(x.t==='order') return `<div class="flab">ELEMENTAI <span class="cyan">TEISINGA TVARKA</span> · bent 2, daugiausia 6 (mokiniams bus sumaišyti)</div>
@@ -1996,7 +1996,7 @@ function renderEditor(){
     const c=document.createElement('div'); c.className='panel qcard'; c.dataset.i=i;
     c.innerHTML=`<div class="qtools"><button title="Aukštyn" data-a="up">↑</button><button title="Žemyn" data-a="down">↓</button><button title="Ištrinti" class="x" data-a="del">✕</button></div>
       <div><span class="qn">${i+1}.</span><span class="flab">KLAUSIMAS</span></div>
-      <div class="qtypes">${Object.entries({choice:'🔘 Pasirinkimas',tf:'✔✗ Teisinga/Neteisinga',type:'⌨ Įrašyti',order:'↕️ Eilės tvarka',multi:'☑️ Keli teisingi',match:'🔗 Poros',num:'🔢 Skaičius',group:'📂 Grupavimas'}).map(([k,l])=>`<button data-t="${k}" class="${x.t===k?'on':''}">${l}</button>`).join('')}</div>
+      <div class="qtypes">${Object.entries({choice:'🔘 Pasirinkimas',tf:'✔✗ Tiesa/Melas',type:'⌨ Įrašyti',order:'↕️ Eilės tvarka',multi:'☑️ Keli teisingi',match:'🔗 Poros',num:'🔢 Skaičius',group:'📂 Grupavimas'}).map(([k,l])=>`<button data-t="${k}" class="${x.t===k?'on':''}">${l}</button>`).join('')}</div>
       <textarea rows="2" maxlength="300" data-f="q" placeholder="${x.t==='tf'?'Įrašykite teiginį, pvz. „Vilnius yra Lietuvos sostinė.“':'Įrašykite klausimą'}"></textarea>
       <div class="ansArea">${ansEditorHTML(x)}</div>
       <input maxlength="400" data-f="e" placeholder="💡 Paaiškinimas, rodomas suklydus (nebūtinas)" style="margin-top:8px">

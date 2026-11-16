@@ -1102,9 +1102,9 @@ async function tLine(run, text, cls, speed){
   if(run!==TERM.run) throw 'stop';
   const d=document.createElement('div'); d.className='tl'+(cls?' '+cls:''); $('termOut').appendChild(d);
   const span=document.createElement('span'), cur=document.createElement('span'); cur.className='tcur'; d.append(span,cur);
-  const chars=[...text]; speed=speed||15;
+  const chars=[...text]; speed=speed||35;
   for(let i=1;i<=chars.length;i++){ if(run!==TERM.run) throw 'stop'; span.textContent=chars.slice(0,i).join(''); await tsleep(speed); }
-  cur.remove(); return d;
+  cur.remove(); await tsleep(220); return d;
 }
 function termGo(){ /* po animacijos – į laukimo / žaidimo ekraną */
   TERM.active=false; const f=TERM.after; TERM.after=null; if(f) f();
@@ -1116,8 +1116,8 @@ async function runTerminal(){
     const tt=document.createElement('div'); tt.className='tt'; out.appendChild(tt);
     const T1='SVEIKAS, ', T2='HAKERI';
     for(let i=1;i<=T1.length+T2.length;i++){ if(run!==TERM.run) throw 'stop';
-      tt.innerHTML=esc(T1.slice(0,i))+(i>T1.length?'<b>'+esc(T2.slice(0,i-T1.length))+'</b>':''); await tsleep(40); }
-    await tsleep(150);
+      tt.innerHTML=esc(T1.slice(0,i))+(i>T1.length?'<b>'+esc(T2.slice(0,i-T1.length))+'</b>':''); await tsleep(85); }
+    await tsleep(500);
     await tLine(run, `> Aptiktas naujas vartotojas: ${C.name} ${C.av}`);
     await tLine(run, '> Jungiamasi prie pagrindinio serverio...');
     await tLine(run, '> Pasirink slaptažodį (kiti bandys jį atspėti!):', 'hl');
@@ -1125,7 +1125,7 @@ async function runTerminal(){
     const opts=shuffle(PASSWORDS).slice(0,5);
     const picked=new Promise(res=>{
       opts.forEach((pw,i)=>{ const b=document.createElement('button'); b.textContent=pw; box.appendChild(b);
-        setTimeout(()=>b.classList.add('in'), 90*i);
+        setTimeout(()=>b.classList.add('in'), 180*i);
         b.onclick=()=>{ if(box.dataset.done) return; box.dataset.done='1'; b.classList.add('on'); box.querySelectorAll('button').forEach(x=>x.disabled=true); res(pw); }; });
     });
     const pw=await picked; if(run!==TERM.run) throw 'stop';
@@ -1135,10 +1135,10 @@ async function runTerminal(){
     await tLine(run, '> Tapatybė patvirtinta', 'ok');
     await tLine(run, '> Kraunama įsilaužimo programinė įranga...');
     await tLine(run, '>');
-    for(let k=0;k<3;k++) await tLine(run, '> .......', '', 45);
+    for(let k=0;k<3;k++) await tLine(run, '> .......', '', 110);
     await tLine(run, '>');
     await tLine(run, '> Paleidžiama...', 'ok');
-    await tsleep(350);
+    await tsleep(900);
     TERM.animDone=true;
     if(TERM.after) termGo();
     else { const w=await tLine(run, '> Laukiama atsakymo iš serverio', 'dim'); const sp=document.createElement('span'); sp.className='spinner'; sp.style.marginLeft='10px'; w.appendChild(sp); }

@@ -205,7 +205,9 @@ input.ok{border-color:var(--g);border-width:2px}
 .tfpick input{width:auto;accent-color:var(--g)}
 .qtag{display:inline-block;font-size:.65rem;letter-spacing:1px;padding:1px 7px;border:1px solid var(--c);color:var(--c);border-radius:99px;margin-left:8px;vertical-align:middle}
 /* TERMINALO PRISIJUNGIMAS */
-.termbox{margin:auto;width:100%;max-width:980px;padding:26px 30px;min-height:70vh;background:radial-gradient(ellipse at 70% 80%,rgba(57,255,138,.10),transparent 60%),rgba(0,14,6,.88);border:1px solid var(--g2);border-radius:10px;box-shadow:0 0 24px rgba(57,255,138,.18),inset 0 0 50px rgba(57,255,138,.06)}
+.termbox{width:100%;max-width:1100px;margin:0 auto;padding:22px 26px;min-height:calc(100vh - 32px);background:transparent;border:none;border-radius:0;box-shadow:none}
+.termbox{position:relative;z-index:1}
+.termbox::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 75% 85%,rgba(57,255,138,.16),transparent 55%),linear-gradient(180deg,rgba(0,22,10,.92),rgba(0,32,14,.9))}
 #termOut{font-size:clamp(1rem,2.2vw,1.3rem);line-height:1.6;color:#8ff0b6}
 #termOut .tt{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,4.5vw,2.6rem);font-weight:900;letter-spacing:2px;margin-bottom:14px;color:var(--g);text-shadow:0 0 12px rgba(57,255,138,.6)}
 #termOut .tt b{color:#e9fff2;text-shadow:0 0 12px rgba(233,255,242,.4)}

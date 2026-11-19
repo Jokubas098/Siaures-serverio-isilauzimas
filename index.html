@@ -1901,7 +1901,7 @@ async function openDash(msg){
 function setCard(s, kind){
   const el=document.createElement('div'); el.className='set';
   const n=(s.questions||[]).length;
-  const meta = kind==='builtin' ? 'Įmontuotas rinkinys' : kind==='shared' ? `Bendrina: ${s.ownerName||'mokytojas'}` : (s.updated?`Atnaujinta ${s.updated.toLocaleDateString('lt-LT')}`:'');
+  const meta = kind==='builtin' ? 'Įmontuotas · matote tik jūs' : kind==='shared' ? `Bendrina: ${s.ownerName||'mokytojas'}` : (s.updated?`Atnaujinta ${s.updated.toLocaleDateString('lt-LT')}`:'');
   el.innerHTML=`<div class="tt"></div><div class="meta">${kl(n)} · ${esc(meta)}${s.shared&&kind==='mine'?'<span class="badge">bendrinamas</span>':''}</div><div class="acts"></div>`;
   el.querySelector('.tt').textContent=s.title;
   const acts=el.querySelector('.acts');
@@ -1920,8 +1920,9 @@ function setCard(s, kind){
 }
 function renderSets(){
   const mine=$('tdMine'); mine.innerHTML='';
-  mine.appendChild(setCard(BUILTIN,'builtin'));
+  if(DB.state().admin) mine.appendChild(setCard(BUILTIN,'builtin'));   /* Kalėdų viktorina – tik administratoriui */
   SETS.mine.forEach(s=>mine.appendChild(setCard(s,'mine')));
+  if(!mine.children.length) mine.innerHTML='<div class="muted" style="font-size:.85rem">Dar neturite rinkinių. Spauskite „＋ Naujas rinkinys“ arba „⬆ Įkelti iš Excel“.</div>';
   const sh=$('tdShared'); sh.innerHTML='';
   if(!SETS.shared.length) sh.innerHTML='<div class="muted" style="font-size:.85rem">Kol kas niekas nebendrina rinkinių.</div>';
   SETS.shared.forEach(s=>sh.appendChild(setCard(s,'shared')));

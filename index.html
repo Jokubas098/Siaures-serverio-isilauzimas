@@ -254,6 +254,17 @@ input.ok{border-color:var(--g);border-width:2px}
 .ans.reveal > *, .ans.reveal.opts > .opt{animation:ansIn .32s ease-out both;animation-delay:var(--d,0s)}
 @keyframes ansIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){ .tcur{animation:none} .ans.reveal > *{animation:none} }
+/* TEISINGO ATSAKYMO PRANEŠIMAS */
+.okBanner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);z-index:20;text-align:center;padding:22px 36px;border-radius:14px;
+  background:rgba(2,40,18,.94);border:3px solid var(--g);box-shadow:0 0 40px rgba(57,255,138,.7),inset 0 0 30px rgba(57,255,138,.2);opacity:0;
+  animation:okPop 1.15s cubic-bezier(.2,1.4,.4,1) forwards;pointer-events:none;min-width:240px}
+.okBanner .big{font-family:'Orbitron';font-size:clamp(1.8rem,6vw,3rem);font-weight:900;color:var(--g);text-shadow:0 0 16px var(--g);letter-spacing:2px}
+.okBanner .sub{color:#d7ffe8;font-weight:700;margin-top:6px;letter-spacing:2px;font-size:.9rem}
+.okBanner .streak{color:var(--gold);font-weight:800;margin-top:8px;font-size:1.05rem;text-shadow:0 0 10px rgba(255,216,77,.6)}
+@keyframes okPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}30%{transform:translate(-50%,-50%) scale(1)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+#main.okFlash{animation:okFlash .9s ease-out}
+@keyframes okFlash{0%{box-shadow:0 0 0 rgba(57,255,138,0)}20%{box-shadow:0 0 50px rgba(57,255,138,.8),inset 0 0 60px rgba(57,255,138,.25);border-color:var(--g)}100%{box-shadow:0 0 18px rgba(57,255,138,.18)}}
+.streakHud{color:var(--gold);font-weight:800;font-size:.85rem;margin-left:6px}
 /* TELEFONO HUD */
 @media(max-width:560px){
   .hud{display:grid;grid-template-columns:1fr auto;gap:6px 10px;padding:10px 12px}
@@ -1279,12 +1290,12 @@ function clientHandle(d){
 
 function enterPlay(){
   C.phase='game'; C.screen='play'; show('play');
-  $('pLog').innerHTML=''; C.deck=shuffle(myQs()); C.qi=0; C.right=0; C.double=false; C.busy=false;
+  $('pLog').innerHTML=''; C.deck=shuffle(myQs()); C.qi=0; C.right=0; C.streak=0; C.double=false; C.busy=false;
   renderClient(); nextQuestion();
 }
 
 function renderClient(){
-  $('pCoins').textContent = `₿ ${fmt(C.coins)}` + (C.shield?' 🛡️':'') + (C.double?' ⚡':'');
+  $('pCoins').innerHTML = esc(`₿ ${fmt(C.coins)}` + (C.shield?' 🛡️':'') + (C.double?' ⚡':'')) + ((C.streak||0)>=2?`<span class="streakHud">🔥${C.streak}</span>`:'');
   $('pTimer').textContent = mmss(C.left);
   $('pTimer').classList.toggle('low', C.left<=30);
   if(C.mode){
@@ -1526,7 +1537,14 @@ function answer(btn,o,opts,q){
 function resolveAnswer(ok,q){
   if(C.phase!=='game') return;
   cSend({t:'answer', ok, q:myQs().indexOf(q)});
-  if(ok){ C.right++; setTimeout(showChests, ['choice','tf',undefined].includes(q.t)?550:1000); return; }
+  if(ok){ C.right++; C.streak=(C.streak||0)+1;
+    const main=$('main'); main.classList.remove('okFlash'); void main.offsetWidth; main.classList.add('okFlash');
+    const b=document.createElement('div'); b.className='okBanner';
+    b.innerHTML=`<div class="big">✔ TEISINGAI!</div><div class="sub">PRIEIGA SUTEIKTA</div>${C.streak>=2?`<div class="streak">🔥 ${C.streak} iš eilės!</div>`:''}`;
+    main.appendChild(b);
+    renderClient();
+    setTimeout(showChests, ['choice','tf',undefined].includes(q.t)?1150:1500); return; }
+  C.streak=0; renderClient();
   const main=$('main');
   const d=document.createElement('div'); d.className='exp';
   d.textContent = (q.t==='choice'||q.t==='tf'||!q.t) ? (q.e ? '💡 '+q.e : '✔ Teisingas atsakymas: '+q.a[0])
